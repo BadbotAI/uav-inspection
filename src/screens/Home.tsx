@@ -371,7 +371,11 @@ export function Home() {
                       }}
                       onClick={() => { set({ selectedRouteId: r.id }); setPickerOpen(false); }}
                     >
-                      <div className="flex items-center gap-2">
+                      {/* 对齐航线页卡片：编号小字 + 名称行 + 标签行（不含创建/成功率/上次巡检） */}
+                      <div className="mono" style={{ fontSize: 9.5, letterSpacing: '.06em', color: 'var(--brand-text)', paddingLeft: 23 }}>
+                        {r.id}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
                         <span
                           className="inline-flex items-center justify-center rounded-full shrink-0"
                           style={{
@@ -381,12 +385,15 @@ export function Home() {
                         >
                           {active && <span className="rounded-full" style={{ width: 7, height: 7, background: 'var(--brand)' }} />}
                         </span>
-                        <span className="flex-1 truncate" style={{ fontSize: 14, fontWeight: active ? 500 : 400 }}>
+                        <span className="flex-1 truncate" style={{ fontSize: 15, fontWeight: 500 }}>
                           {r.name || '未命名航线'}
                         </span>
                       </div>
-                      <div className="mono mt-1.5" style={{ fontSize: 11, color: 'var(--text-tertiary)', paddingLeft: 23 }}>
-                        {r.waypointCount} 航点 · 约 {r.etaMin} 分钟 · 离堆 {r.minClearanceM.toFixed(1)}m
+                      <div className="flex flex-wrap gap-1.5 mt-2" style={{ paddingLeft: 23 }}>
+                        {r.scanTags.map(tg => <Tag key={tg} tone="info">{tg}</Tag>)}
+                        <Tag>{r.waypointCount} 航点</Tag>
+                        <Tag>约 {r.etaMin} 分钟</Tag>
+                        <Tag>离堆 {r.minClearanceM.toFixed(1)}m</Tag>
                       </div>
                     </button>
                   );
