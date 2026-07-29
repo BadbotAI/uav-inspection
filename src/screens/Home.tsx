@@ -30,6 +30,7 @@ export function Home() {
   const [mapOpen, setMapOpen] = useState(false);
   const [mapRouteId, setMapRouteId] = useState<string | null>(null);
   const [mapSceneId, setMapSceneId] = useState<string | null>(null);
+  const [mapPickOpen, setMapPickOpen] = useState(false);
 
   const route = routes.find(r => r.id === selectedRouteId) ?? null;
 
@@ -414,7 +415,7 @@ export function Home() {
       </BottomSheet>
 
       {/* 场景地图浮层：展示场景点云；下方航线列表切换是否在地图中标注该航线 */}
-      <BottomSheet open={mapOpen} onMask={() => setMapOpen(false)}>
+      <BottomSheet open={mapOpen} onMask={() => { setMapOpen(false); setMapPickOpen(false); }}>
         <div className="flex items-center gap-1" style={{ height: 32, marginBottom: 10 }}>
           <button
             className="flex items-center justify-center pressable"
@@ -425,22 +426,73 @@ export function Home() {
             <IconChevronLeft size={15} />
           </button>
           <span style={{ fontSize: 15, fontWeight: 600 }}>场景地图</span>
-          <span
-            className="ml-auto"
-            style={{
-              padding: '4px 11px', borderRadius: 999, fontSize: 11.5,
-              background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
-              color: 'var(--brand-subtle-text)',
-            }}
-          >
-            {scenes.find(sc => sc.id === mapSceneId)?.name ?? pickScene?.name ?? '一号仓 A区'}
-          </span>
+          {/* 地址下拉：切换不同场景地图 */}
+          <div className="relative ml-auto">
+            <button
+              className="flex items-center gap-1 pressable"
+              style={{
+                padding: '4px 11px', borderRadius: 999, fontSize: 11.5, cursor: 'pointer',
+                background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+                color: 'var(--brand-subtle-text)', fontWeight: 500,
+              }}
+              onClick={() => setMapPickOpen(v => !v)}
+            >
+              {scenes.find(sc => sc.id === mapSceneId)?.name ?? pickScene?.name ?? '一号仓 A区'}
+              <span style={{ display: 'inline-flex', transform: mapPickOpen ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}>
+                <IconChevronDown size={10} />
+              </span>
+            </button>
+            {mapPickOpen && (() => {
+              const curMapScene = mapSceneId ?? pickSceneId;
+              return (
+              <div
+                className="absolute"
+                style={{
+                  right: 0, top: 32, width: 172, zIndex: 30,
+                  background: 'var(--glass-bg)', backdropFilter: 'blur(14px)',
+                  border: '1px solid var(--border-strong)', borderRadius: 10,
+                  boxShadow: 'var(--shadow-popover)',
+                }}
+              >
+              <div className="flex flex-col" style={{ padding: 5, gap: 2 }}>
+                {scenes.map(sc => {
+                  const cur = sc.id === curMapScene;
+                  return (
+                    <button
+                      key={sc.id}
+                      className="flex items-center gap-2 text-left pressable"
+                      style={{
+                        padding: '8px 10px', borderRadius: 7, fontSize: 12.5, cursor: 'pointer',
+                        background: cur ? 'var(--brand-subtle-bg)' : 'transparent',
+                        color: cur ? 'var(--brand-subtle-text)' : 'var(--text-primary)',
+                        fontWeight: cur ? 500 : 400,
+                      }}
+                      onClick={() => {
+                        setMapSceneId(sc.id);
+                        setMapRouteId(routes.find(r => r.sceneId === sc.id)?.id ?? null);
+                        setMapPickOpen(false);
+                      }}
+                    >
+                      <span className="flex-1 truncate">{sc.name}</span>
+                      {cur && (
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3.4 8.4 6.6 11.6 12.6 4.8" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              </div>
+              );
+            })()}
+          </div>
         </div>
         {mapOpen && (() => {
           const mapRoute = routes.find(r => r.id === mapRouteId) ?? null;
           return (
             <div
-              key={mapRouteId ?? 'scene-only'}
+              key={`${mapSceneId ?? 'cur'}-${mapRouteId ?? 'none'}`}
               style={{
                 height: 220, borderRadius: 10, overflow: 'hidden',
                 border: '1px solid var(--card-stroke)',
