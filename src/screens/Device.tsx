@@ -108,11 +108,10 @@ export function Device() {
           <div style={{ fontSize: 22, fontWeight: 700, lineHeight: '30px', letterSpacing: '0.01em' }}>设备</div>
           {/* 发现设备：扫描同一网络下的无人机 */}
           <button
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 pressable"
             style={{
-              fontSize: 12, padding: '6px 13px', borderRadius: 999,
-              color: 'var(--brand-subtle-text)', border: '1px solid var(--brand-border)',
-              background: 'var(--brand-subtle-bg)', cursor: 'pointer',
+              fontSize: 12, color: 'var(--text-link)', fontWeight: 500,
+              background: 'transparent', cursor: 'pointer',
               opacity: scanning ? 0.65 : 1,
             }}
             onClick={scan}
