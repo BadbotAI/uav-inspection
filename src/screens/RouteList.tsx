@@ -209,8 +209,9 @@ export function RouteList() {
                   className="shrink-0 flex items-center gap-1.5 pressable"
                   style={{
                     padding: '5px 13px', borderRadius: 999, fontSize: 12.5, fontWeight: 500,
-                    background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
-                    cursor: 'pointer',
+                    background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+                    color: 'var(--brand-subtle-text)', cursor: 'pointer',
+                    boxShadow: 'var(--shadow-card)',
                   }}
                   onClick={() => { setMapScene(sc.id); setMapRouteId(scRoutes[0]?.id ?? null); }}
                 >
@@ -275,7 +276,8 @@ export function RouteList() {
             className="ml-auto"
             style={{
               padding: '4px 11px', borderRadius: 999, fontSize: 11.5,
-              background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
+              background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+              color: 'var(--brand-subtle-text)',
             }}
           >
             {scenes.find(sc => sc.id === mapScene)?.name ?? ''}

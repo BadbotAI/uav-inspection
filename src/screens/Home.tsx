@@ -118,7 +118,7 @@ export function Home() {
                     className="flex items-center gap-1"
                     style={{
                       padding: '4px 10px', borderRadius: 999, cursor: 'pointer',
-                      background: 'var(--brand-subtle-bg)',
+                      background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
                       fontSize: 11, color: 'var(--brand-subtle-text)',
                     }}
                     onClick={() => { setMapSceneId(pickSceneId); setMapRouteId(route?.id ?? null); setMapOpen(true); }}
@@ -340,7 +340,7 @@ export function Home() {
                   className="flex items-center gap-1.5"
                   style={{
                     padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
-                    background: 'var(--brand-subtle-bg)',
+                    background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
                     color: 'var(--brand-subtle-text)', fontSize: 12, fontWeight: 500,
                   }}
                   onClick={() => setPickerStep('region')}
@@ -414,7 +414,8 @@ export function Home() {
             className="ml-auto"
             style={{
               padding: '4px 11px', borderRadius: 999, fontSize: 11.5,
-              background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
+              background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+              color: 'var(--brand-subtle-text)',
             }}
           >
             {scenes.find(sc => sc.id === mapSceneId)?.name ?? pickScene?.name ?? '一号仓 A区'}

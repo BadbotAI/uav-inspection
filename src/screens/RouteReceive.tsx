@@ -42,7 +42,8 @@ export function RouteReceive() {
                   className="flex items-center gap-1"
                   style={{
                     padding: '3px 9px', borderRadius: 999, fontSize: 10.5, fontWeight: 500,
-                    background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
+                    background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+                    color: 'var(--brand-subtle-text)',
                   }}
                 >
                   <IconPin size={11} />

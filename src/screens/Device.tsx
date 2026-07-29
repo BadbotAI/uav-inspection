@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Dialog } from '../components/BottomSheet';
-import { IconDrone, IconChevronRight, IconSliders, IconSync } from '../components/Icons';
+import { IconDrone, IconChevronRight, IconSliders, IconSync, IconPin } from '../components/Icons';
 
 interface OtherDevice {
   id: string;
@@ -145,7 +145,17 @@ export function Device() {
                 <div className="flex flex-wrap gap-1.5 mt-2.5">
                   <Tag>电量 {Math.round(device.batteryPct)}%</Tag>
                   <Tag>存储 {device.storageFreeGb.toFixed(1)}GB</Tag>
-                  <Tag tone="info">{device.locationDesc}</Tag>
+<span
+                    className="flex items-center gap-1"
+                    style={{
+                      padding: '3px 8px', borderRadius: 999, fontSize: 10.5, fontWeight: 500,
+                      background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+                      color: 'var(--brand-subtle-text)',
+                    }}
+                  >
+                    <IconPin size={10} />
+                    {device.locationDesc}
+                  </span>
                   <Tag tone={device.sensorsOk ? 'hi' : 'lo'}>
                     {device.sensorsOk ? '正常' : '异常'}
                   </Tag>
@@ -191,7 +201,17 @@ export function Device() {
                 <div className="flex flex-wrap gap-1.5 mt-2.5">
                   <Tag>电量 {Math.round(d.batteryPct)}%</Tag>
                   <Tag>存储 {d.storageFreeGb.toFixed(1)}GB</Tag>
-                  <Tag tone="info">{d.locationDesc}</Tag>
+<span
+                    className="flex items-center gap-1"
+                    style={{
+                      padding: '3px 8px', borderRadius: 999, fontSize: 10.5, fontWeight: 500,
+                      background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
+                      color: 'var(--brand-subtle-text)',
+                    }}
+                  >
+                    <IconPin size={10} />
+                    {d.locationDesc}
+                  </span>
                 </div>
               </div>
               <button
