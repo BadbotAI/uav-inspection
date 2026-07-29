@@ -115,15 +115,16 @@ export function Execute() {
         {/* 拍摄点悬停：视角按钮下方的轻提示（透明深底，浅深画面通用） */}
         {mission.shooting && (
           <div
-            className="absolute count-pop flex items-center gap-1.5 pointer-events-none"
+            className="absolute count-pop flex items-center gap-1 pointer-events-none"
             style={{
-              top: 46, right: 10, zIndex: 15,
-              padding: '5px 11px', borderRadius: 999,
-              background: 'rgba(16,19,26,.55)', backdropFilter: 'blur(6px)',
-              color: '#FFFFFF', fontSize: 11, fontWeight: 500,
+              top: 48, left: '50%', transform: 'translateX(-50%)', zIndex: 15,
+              padding: '3.5px 10px', borderRadius: 999,
+              background: 'rgba(16,19,26,.34)', backdropFilter: 'blur(5px)',
+              color: 'rgba(255,255,255,.94)', fontSize: 10.5,
+              whiteSpace: 'nowrap',
             }}
           >
-            <IconCameraFill size={12} />
+            <IconCameraFill size={11} />
             拍摄记录中
           </div>
         )}

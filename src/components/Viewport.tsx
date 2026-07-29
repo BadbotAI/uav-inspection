@@ -184,16 +184,17 @@ export function Viewport({
         />
       )}
 
-      {/* 画中画互换提示角标 */}
+      {/* 画中画互换提示角标：与放大按钮同款玻璃圆钮 */}
       {pip && (
         <span
           className="absolute flex items-center justify-center pointer-events-none"
           style={{
-            right: 14, bottom: 14, width: 17, height: 17, borderRadius: 5,
-            background: 'rgba(16,19,26,.55)', color: 'rgba(255,255,255,.9)',
+            ...canvasChipStyle(false),
+            width: 28, padding: 0, justifyContent: 'center',
+            right: 14, bottom: 14,
           }}
         >
-          <IconSwitch size={10} />
+          <IconSwitch size={13} />
         </span>
       )}
 
