@@ -11,7 +11,7 @@ import { Pill, type PillTone } from '../components/Pill';
 import { Viewport } from '../components/Viewport';
 import { TaskCard } from './TaskList';
 import { startPreflight } from '../sim/flight';
-import { fmtRelDay, daysAgo } from '../constants';
+import { fmtRelDay } from '../constants';
 
 
 export function Home() {
@@ -42,9 +42,8 @@ export function Home() {
       if (!q) return true;
       return (r.name || '未命名航线').includes(q) || r.scanTags.some(t => t.includes(q));
     });
-  // 「上次巡检」= 今天之前最近一次成功巡检（mock 一致性：显示 T2 的 166.2m³）
-  const lastTask = tasks.find(t => t.status === 'success' && daysAgo(t.startedAt) > 0)
-    ?? tasks.find(t => t.status === 'success') ?? tasks[0] ?? null;
+  // 「上次巡检」= 最新一条巡检记录（新任务完成后即时置顶更新）
+  const lastTask = tasks[0] ?? null;
   const connected = !!device?.connected;
 
   // 「状态」= 自检状态 / 飞行中

@@ -302,7 +302,7 @@ export function Execute() {
 
         {/* 操作区：执行中唯一指令 = 返航（长按确认） */}
         {!isReturning ? (
-          <div className="flex mt-3.5" style={{ maxWidth: 260, margin: '14px auto 0' }}>
+          <div className="flex mt-3.5" style={{ maxWidth: 190, margin: '14px auto 0' }}>
             <LongPressReturn disabled={obstacle} onFired={fireReturnFlash} />
           </div>
         ) : (
