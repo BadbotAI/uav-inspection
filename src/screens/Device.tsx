@@ -104,9 +104,11 @@ export function Device() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto" style={{ padding: 16 }}>
-        <div className="flex items-center justify-between">
-          <div style={{ fontSize: 22, fontWeight: 700, lineHeight: '30px', letterSpacing: '0.01em' }}>设备</div>
-          {/* 发现设备：扫描同一网络下的无人机 */}
+        <div style={{ fontSize: 22, fontWeight: 700, lineHeight: '30px', letterSpacing: '0.01em' }}>设备</div>
+
+        {/* 已知设备：已连接设备置顶；发现设备与小标题水平对齐 */}
+        <div className="flex items-center justify-between mt-5 mb-2">
+          <span className="dlabel" style={{ fontSize: 11 }}>已知设备</span>
           <button
             className="flex items-center gap-1.5 pressable"
             style={{
@@ -120,9 +122,6 @@ export function Device() {
             {scanning ? '检测中' : '发现设备'}
           </button>
         </div>
-
-        {/* 已知设备：已连接设备置顶 */}
-        <div className="dlabel mt-4 mb-2" style={{ fontSize: 11 }}>已知设备</div>
         <div className="flex flex-col gap-2">
         <div key={device?.id ?? 'mine'} ref={el => { if (device) cardRefs.current[device.id] = el; }}>
         <Card>
