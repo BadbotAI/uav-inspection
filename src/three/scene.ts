@@ -15,24 +15,23 @@ function cameraTexture(): THREE.CanvasTexture {
   ctx.arc(32, 32, 28, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,.95)';
   ctx.fill();
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 1.8;
   ctx.strokeStyle = '#4C6BC0';
   ctx.stroke();
-  // 相机机身
-  ctx.fillStyle = '#4C6BC0';
+  // 相机机身：细线框
+  ctx.lineWidth = 2.4;
   ctx.beginPath();
-  ctx.roundRect(16, 24, 32, 22, 4);
-  ctx.fill();
+  ctx.roundRect(17, 25, 30, 20, 4.5);
+  ctx.stroke();
   ctx.beginPath();
-  ctx.roundRect(25, 19, 14, 7, 2);
-  ctx.fill();
+  ctx.roundRect(25.5, 19.5, 13, 6.5, 2);
+  ctx.stroke();
   // 镜头
   ctx.beginPath();
-  ctx.arc(32, 35, 6.5, 0, Math.PI * 2);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fill();
+  ctx.arc(32, 35, 6, 0, Math.PI * 2);
+  ctx.stroke();
   ctx.beginPath();
-  ctx.arc(32, 35, 3, 0, Math.PI * 2);
+  ctx.arc(32, 35, 2.2, 0, Math.PI * 2);
   ctx.fillStyle = '#4C6BC0';
   ctx.fill();
   camTexCache = new THREE.CanvasTexture(c);

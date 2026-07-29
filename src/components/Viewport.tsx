@@ -175,7 +175,7 @@ export function Viewport({
           style={{
             right: 10, bottom: 10, width: '34%', height: pipH,
             borderRadius: 10, cursor: 'pointer',
-            border: '2px solid rgba(255,255,255,.92)',
+            border: '1px solid rgba(76,107,192,.85)',
             boxShadow: '0 3px 12px rgba(0,0,0,.25)',
             background: '#10131A',
           }}
