@@ -5,6 +5,14 @@ import { useStore } from '../store';
 import { Pill } from '../components/Pill';
 import { IconDoc, IconCopy, IconChevronRight } from '../components/Icons';
 import { CONF_TEXT, CONF_TONE } from './ResultShared';
+
+// 明细异常情况文案：状态 + 原因/建议
+const ISSUE_TEXT = {
+  unclear: '识别不清晰 · 表面反光或粉尘干扰，建议补扫复核',
+  occluded: '部分遮挡 · 遮挡面由推算得出，结果偏保守',
+  uncovered: '未完整覆盖 · 本次航线未扫到该区域，数据不完整',
+  changed: '较上次变化异常 · 建议人工复核',
+} as const;
 import type { Task } from '../types';
 
 const cardStyle: React.CSSProperties = {
@@ -142,6 +150,16 @@ export function ResultOutcome({
                   {s.position} · {s.cargoType === 'bulk' ? '散料堆体' : '规则码垛'}
                   {s.totalCount != null && ` · ${s.layerCount} 层 × ${s.perLayerCount} 件/层`}
                 </div>
+                {s.issue && (
+                  <div className="flex items-center gap-1 mt-1" style={{ fontSize: 10.5, color: 'var(--warning)' }}>
+                    <svg width="11" height="11" viewBox="0 0 16 16" className="shrink-0">
+                      <path d="M8 2.6 L14.6 13.2 H1.4 Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                      <path d="M8 6.6 V9.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                      <circle cx="8" cy="11.3" r="0.8" fill="currentColor" />
+                    </svg>
+                    {ISSUE_TEXT[s.issue]}
+                  </div>
+                )}
               </div>
               <div className="text-right shrink-0">
                 {s.totalCount != null ? (
@@ -338,11 +356,16 @@ export function ResultOutcome({
               <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '12px 0' }} />
               <div className="dlabel mb-1">{unitName}明细</div>
               {task.stacks.map(s => (
-                <div key={s.id} className="flex items-center justify-between" style={{ padding: '5px 0' }}>
-                  <span style={{ fontSize: 12.5 }}>{s.name}</span>
-                  <span className="mono" style={{ fontSize: 12.5 }}>
-                    {s.totalCount != null ? `${s.totalCount.toLocaleString()} 件 · ` : ''}{s.volumeM3.toFixed(1)}m³
-                  </span>
+                <div key={s.id} style={{ padding: '5px 0' }}>
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: 12.5 }}>{s.name}</span>
+                    <span className="mono" style={{ fontSize: 12.5 }}>
+                      {s.totalCount != null ? `${s.totalCount.toLocaleString()} 件 · ` : ''}{s.volumeM3.toFixed(1)}m³
+                    </span>
+                  </div>
+                  {s.issue && (
+                    <div style={{ fontSize: 10, color: 'var(--warning)' }}>{ISSUE_TEXT[s.issue]}</div>
+                  )}
                 </div>
               ))}
 

@@ -20,6 +20,7 @@ export const TASKS: Task[] = [
     { id:'S-C', name:'堆体 C', position:'西南角', cargoType:'bulk', volumeM3:31.8,
       volumeConfidence:'low', surfaceCoverPct:64,
       occlusionNote:'西侧贴墙、南侧被立柱与输送设备遮挡，堆脚不可见。体积中约 3 成由推算得出。',
+      issue:'occluded',
       layerCount:null, perLayerCount:null, totalCount:null, countConfidence:null },
   ]},
 
@@ -59,6 +60,7 @@ export const TASKS: Task[] = [
     { id:'S-C', name:'堆体 C', position:'西南角', cargoType:'bulk', volumeM3:17.3,
       volumeConfidence:'low', surfaceCoverPct:41,
       occlusionNote:'任务中断，仅扫到北侧坡面。体积不可用于账务。',
+      issue:'uncovered',
       layerCount:null, perLayerCount:null, totalCount:null, countConfidence:null },
   ]},
 
@@ -82,6 +84,7 @@ export const TASKS: Task[] = [
     { id:'K-B4', name:'货位 B4', position:'北侧', cargoType:'stacked', volumeM3:26.8,
       volumeConfidence:'medium', surfaceCoverPct:85,
       occlusionNote:'顶层码放不齐，最上层计数存在偏差。',
+      issue:'unclear',
       layerCount:3, perLayerCount:60, totalCount:180, countConfidence:'medium' },
   ]},
 ];

@@ -181,7 +181,7 @@ export function RouteList() {
         <div className="flex items-center justify-between mt-2.5">
           <div className="flex items-center gap-1.5">
             {([
-              ['all', '根据地图展示'], ['created', '最新创建'], ['run', '巡检时间'],
+              ['all', '分场景展示'], ['created', '最新创建'], ['run', '巡检时间'],
             ] as const).map(([k, name]) => {
               const active = sortKey === k;
               return (

@@ -42,6 +42,9 @@ export interface Route {
   successRuns: number;
 }
 
+// 明细异常情况：识别不清晰 / 部分遮挡 / 未覆盖 / 变化异常
+export type StackIssue = 'unclear' | 'occluded' | 'uncovered' | 'changed';
+
 export interface Stack {
   id: string;
   name: string;          // '堆体 A' | '货位 B1'
@@ -51,6 +54,7 @@ export interface Stack {
   volumeConfidence: Confidence;
   surfaceCoverPct: number;
   occlusionNote: string; // 遮挡说明，medium/low 必填
+  issue?: StackIssue | null; // 异常情况标注
   // 仅 stacked 有值
   layerCount: number | null;
   perLayerCount: number | null;
