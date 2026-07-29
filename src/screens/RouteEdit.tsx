@@ -79,18 +79,22 @@ export function RouteEdit({ routeId }: { routeId: string }) {
         />
 
         <div className="dlabel mt-5 mb-2" style={{ fontSize: 11 }}>扫描方式</div>
-        <div className="flex flex-wrap gap-2">
+        {/* 单排等分：五个方式一行放下 */}
+        <div className="flex" style={{ gap: 6 }}>
           {SCAN_TAGS.map(t => {
             const on = tags.includes(t);
             return (
               <button
                 key={t}
+                className="flex-1 text-center pressable"
                 style={{
-                  fontSize: 12.5, padding: '7px 14px', borderRadius: 999,
+                  fontSize: 12, padding: '7px 0', borderRadius: 8,
                   background: on ? 'var(--brand)' : 'var(--surface-1)',
                   border: `1px solid ${on ? 'var(--brand)' : 'var(--border-default)'}`,
                   color: on ? '#FFFFFF' : 'var(--text-secondary)',
+                  fontWeight: on ? 500 : 400,
                   cursor: 'pointer', transition: 'all .12s',
+                  whiteSpace: 'nowrap',
                 }}
                 onClick={() => toggleTag(t)}
               >
