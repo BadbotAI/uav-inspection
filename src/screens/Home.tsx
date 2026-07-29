@@ -401,9 +401,18 @@ export function Home() {
 
       {/* 场景地图浮层：展示场景点云；下方航线列表切换是否在地图中标注该航线 */}
       <BottomSheet open={mapOpen} onMask={() => setMapOpen(false)}>
-        <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-1" style={{ height: 32, marginBottom: 10 }}>
+          <button
+            className="flex items-center justify-center pressable"
+            style={{ width: 30, height: 30, borderRadius: 9, color: 'var(--text-secondary)', cursor: 'pointer' }}
+            onClick={() => setMapOpen(false)}
+            aria-label="返回"
+          >
+            <IconChevronLeft size={15} />
+          </button>
           <span style={{ fontSize: 15, fontWeight: 600 }}>场景地图</span>
           <span
+            className="ml-auto"
             style={{
               padding: '4px 11px', borderRadius: 999, fontSize: 11.5,
               background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',

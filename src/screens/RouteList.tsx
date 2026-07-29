@@ -6,7 +6,7 @@ import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Skeleton, EmptyState } from '../components/Feedback';
 import { BottomSheet } from '../components/BottomSheet';
-import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconPin } from '../components/Icons';
+import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconPin } from '../components/Icons';
 import { Viewport } from '../components/Viewport';
 import { RouteDelete } from './RouteDelete';
 import { fmtRelDay, daysAgo } from '../constants';
@@ -262,9 +262,18 @@ export function RouteList() {
 
       {/* 场景地图浮层：点击航线切换是否在地图中标注展示 */}
       <BottomSheet open={!!mapScene} onMask={() => setMapScene(null)}>
-        <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-1" style={{ height: 32, marginBottom: 10 }}>
+          <button
+            className="flex items-center justify-center pressable"
+            style={{ width: 30, height: 30, borderRadius: 9, color: 'var(--text-secondary)', cursor: 'pointer' }}
+            onClick={() => setMapScene(null)}
+            aria-label="返回"
+          >
+            <IconChevronLeft size={15} />
+          </button>
           <span style={{ fontSize: 15, fontWeight: 600 }}>场景地图</span>
           <span
+            className="ml-auto"
             style={{
               padding: '4px 11px', borderRadius: 999, fontSize: 11.5,
               background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
