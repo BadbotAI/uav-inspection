@@ -8,7 +8,7 @@ import { Tag } from '../components/Pill';
 import { Button, CtaRow } from '../components/Button';
 import { TeleGrid } from '../components/TeleGrid';
 import { FloatBack } from '../components/SubHeader';
-import { IconEdit, IconPlus, IconNote } from '../components/Icons';
+import { IconEdit, IconPlus, IconNote, IconPin } from '../components/Icons';
 import { buildRoutePath, waypointRows } from '../three/route';
 import { startPreflight } from '../sim/flight';
 import { fmtRelDay } from '../constants';
@@ -56,9 +56,24 @@ export function RouteDetail({ routeId }: { routeId: string }) {
               </span>
               {route.scanTags.map(t => <Tag key={t} tone="info">{t}</Tag>)}
             </div>
-            <div className="mt-1" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-              {route.id} · 创建于 {route.recordedAt}
-              {scene && <> · 所属场景 <span className="mono">{scene.id}</span> {scene.name}</>}
+            {/* 元信息标签化：地址胶囊与其他卡片对齐，编号收进标签 */}
+            <div className="flex flex-wrap items-center mt-2" style={{ gap: 6 }}>
+              {scene && (
+                <span
+                  className="flex items-center gap-1"
+                  style={{
+                    padding: '3px 9px', borderRadius: 999, fontSize: 10.5, fontWeight: 500,
+                    background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
+                  }}
+                >
+                  <IconPin size={11} />
+                  {scene.name}
+                </span>
+              )}
+              <Tag>{route.id}</Tag>
+              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                创建于 {route.recordedAt}
+              </span>
             </div>
           </div>
           <button
