@@ -182,7 +182,10 @@ export function Device() {
                 <div className="flex items-center gap-2.5">
                   <span style={{ color: 'var(--text-tertiary)', display: 'inline-flex' }}><IconDrone size={17} /></span>
                   <div className="min-w-0">
-                    <div className="truncate" style={{ fontSize: 14, fontWeight: 500 }}>{d.id}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate" style={{ fontSize: 14, fontWeight: 500 }}>{d.id}</span>
+                      <Pill tone={d.sensorsOk ? 'neutral' : 'lo'}>{d.sensorsOk ? '正常' : '异常'}</Pill>
+                    </div>
                     <div className="mt-0.5" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{d.model}</div>
                   </div>
                 </div>
@@ -190,7 +193,6 @@ export function Device() {
                   <Tag>电量 {Math.round(d.batteryPct)}%</Tag>
                   <Tag>存储 {d.storageFreeGb.toFixed(1)}GB</Tag>
                   <Tag tone="info">{d.locationDesc}</Tag>
-                  <Tag tone={d.sensorsOk ? 'hi' : 'lo'}>{d.sensorsOk ? '正常' : '异常'}</Tag>
                 </div>
               </div>
               <button
