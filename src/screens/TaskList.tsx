@@ -6,7 +6,7 @@ import { useStore } from '../store';
 import { api } from '../api';
 import { Card } from '../components/Card';
 import { Pill } from '../components/Pill';
-import { IconMore } from '../components/Icons';
+import { IconMore, IconArrowDown, IconPin } from '../components/Icons';
 import { EmptyState } from '../components/Feedback';
 import { Dialog } from '../components/BottomSheet';
 import {
@@ -108,11 +108,42 @@ export function TaskCard({
 
 export function TaskList() {
   const tasks = useStore(s => s.tasks);
+  const routes = useStore(s => s.routes);
+  const scenes = useStore(s => s.scenes);
   const set = useStore(s => s.set);
   const showToast = useStore(s => s.showToast);
   const [removing, setRemoving] = useState<Task | null>(null);
+  // 与航线页同构：分场景分组 / 最新创建 / 巡检时间（方向可切）
+  const [sortKey, setSortKey] = useState<'scene' | 'created' | 'run'>('created');
+  const [runDesc, setRunDesc] = useState(true);
 
   const isExpired = (t: Task) => daysAgo(t.startedAt) > RESULT_RETENTION_DAYS;
+
+  const sceneOf = (t: Task) => routes.find(r => r.id === t.routeId)?.sceneId ?? null;
+  const sorted = [...tasks].sort((a, b) =>
+    sortKey === 'run' && !runDesc
+      ? a.startedAt.localeCompare(b.startedAt)
+      : b.startedAt.localeCompare(a.startedAt));
+
+  const renderTask = (t: Task) => {
+    const expired = isExpired(t);
+    return (
+      <TaskCard
+        key={t.id}
+        task={t}
+        expired={expired}
+        onClick={() => {
+          if (expired) {
+            showToast(`结果已超过 ${RESULT_RETENTION_DAYS} 天保留期，本机数据已清理`);
+            return;
+          }
+          set({ resultSub: { taskId: t.id, view: 'process' } });
+        }}
+        onLongPress={() => setRemoving(t)}
+        onMore={() => setRemoving(t)}
+      />
+    );
+  };
 
   const confirmRemove = async () => {
     if (!removing) return;
@@ -130,30 +161,74 @@ export function TaskList() {
         共 {tasks.length} 次巡检 · 结果本机保留 {RESULT_RETENTION_DAYS} 天，超期失效
       </div>
 
-      <div className="flex flex-col gap-3 mt-4">
+      {/* 筛选：与航线页同构 */}
+      <div className="flex items-center gap-1.5 mt-3">
+        {([
+          ['scene', '分场景展示'], ['created', '最新创建'], ['run', '巡检时间'],
+        ] as const).map(([k, name]) => {
+          const active = sortKey === k;
+          return (
+            <button
+              key={k}
+              className="pressable flex items-center gap-1"
+              style={{
+                fontSize: 11.5, padding: '5px 10px', borderRadius: 999, cursor: 'pointer',
+                background: active ? 'var(--brand-subtle-bg)' : 'var(--surface-3)',
+                border: `1px solid ${active ? 'var(--brand-border)' : 'transparent'}`,
+                color: active ? 'var(--brand-subtle-text)' : 'var(--text-secondary)',
+                fontWeight: active ? 500 : 400,
+              }}
+              onClick={() => {
+                if (k === 'run' && sortKey === 'run') { setRunDesc(v => !v); return; }
+                setSortKey(k);
+              }}
+            >
+              {name}
+              {k === 'run' && (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    transform: sortKey === 'run' && !runDesc ? 'rotate(180deg)' : 'none',
+                    transition: 'transform .15s',
+                  }}
+                >
+                  <IconArrowDown size={10} />
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-3.5">
         {tasks.length === 0 ? (
           <EmptyState
             text="还没有巡检记录"
             actionText="去发起巡检"
             onAction={() => set({ tab: 'home' })}
           />
-        ) : tasks.map(t => {
-          const expired = isExpired(t);
+        ) : sortKey !== 'scene' ? (
+          <div className="flex flex-col gap-3">{sorted.map(renderTask)}</div>
+        ) : scenes.map(sc => {
+          const scTasks = sorted.filter(t => sceneOf(t) === sc.id);
+          if (scTasks.length === 0) return null;
           return (
-            <TaskCard
-              key={t.id}
-              task={t}
-              expired={expired}
-              onClick={() => {
-                if (expired) {
-                  showToast(`结果已超过 ${RESULT_RETENTION_DAYS} 天保留期，本机数据已清理`);
-                  return;
-                }
-                set({ resultSub: { taskId: t.id, view: 'process' } });
-              }}
-              onLongPress={() => setRemoving(t)}
-              onMore={() => setRemoving(t)}
-            />
+            <div key={sc.id} className="mb-4">
+              <div className="flex items-center gap-2 mb-2" style={{ padding: '2px 2px' }}>
+                <span
+                  className="shrink-0 flex items-center gap-1.5"
+                  style={{
+                    padding: '5px 13px', borderRadius: 999, fontSize: 12.5, fontWeight: 500,
+                    background: 'var(--brand-subtle-bg)', border: '1px solid var(--brand-border)',
+                    color: 'var(--brand-subtle-text)',
+                  }}
+                >
+                  <IconPin size={13} />
+                  {sc.name}
+                </span>
+              </div>
+              <div className="flex flex-col gap-3">{scTasks.map(renderTask)}</div>
+            </div>
           );
         })}
       </div>

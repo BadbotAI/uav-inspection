@@ -132,13 +132,14 @@ export function Device() {
               <div className="flex items-center gap-2.5">
                 <span style={{ color: 'var(--brand)', display: 'inline-flex' }}><IconDrone size={17} /></span>
                 <div className="min-w-0">
-                  <div className="truncate" style={{ fontSize: 14, fontWeight: 500 }}>{device?.id ?? 'UAV-A31C'}</div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{MODEL_NAME}</span>
+                  {/* 状态标签统一位于设备编号右侧（与其他设备卡一致） */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate" style={{ fontSize: 14, fontWeight: 500 }}>{device?.id ?? 'UAV-A31C'}</span>
                     <Pill tone={statusText === '异常' ? 'lo' : statusText === '飞行中' || statusText === '充电中' ? 'info' : 'neutral'}>
                       {statusText === '未连接' ? '离线' : statusText}
                     </Pill>
                   </div>
+                  <div className="mt-0.5" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{MODEL_NAME}</div>
                 </div>
               </div>
               {device && (
