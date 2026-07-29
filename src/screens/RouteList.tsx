@@ -69,13 +69,14 @@ export function RouteList() {
       onClick={() => set({ routeSub: { view: 'detail', id: r.id } })}
       onLongPress={() => setActionRoute(r)}
     >
-      <div className="flex items-center gap-2">
+      <div className="mono" style={{ fontSize: 9.5, letterSpacing: '.06em', color: 'var(--brand-text)' }}>
+        {r.id}
+      </div>
+      <div className="flex items-center gap-2 mt-0.5">
         <div className="flex-1 truncate" style={{ fontSize: 15, fontWeight: 500 }}>
           {r.name || '未命名航线'}
         </div>
         {!r.name && <Pill tone="lo">未命名</Pill>}
-        {daysAgo(r.recordedAt) <= 7 && <Pill tone="info">新</Pill>}
-        <Tag>{r.id}</Tag>
         <button
           className="flex items-center justify-center shrink-0"
           style={{
@@ -90,6 +91,7 @@ export function RouteList() {
       </div>
 
       <div className="flex flex-wrap gap-1.5 mt-2.5">
+        {daysAgo(r.recordedAt) <= 7 && <Tag tone="info">新</Tag>}
         {showScene && (
           <Tag tone="info">{scenes.find(sc => sc.id === r.sceneId)?.name ?? ''}</Tag>
         )}
@@ -119,8 +121,17 @@ export function RouteList() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative">
-      {/* 固定头部：标题 / 说明 / 搜索 / 排序与同步 */}
-      <div className="shrink-0" style={{ padding: '16px 16px 10px' }}>
+      {/* 固定头部：微渐变质感（顶部一缕品牌色 + 向底色过渡） */}
+      <div
+        className="shrink-0"
+        style={{
+          padding: '16px 16px 10px',
+          background: [
+            'linear-gradient(180deg, rgba(76,107,192,.055) 0%, rgba(76,107,192,0) 46%)',
+            'linear-gradient(180deg, #F2F4F8 0%, var(--bg-base) 100%)',
+          ].join(', '),
+        }}
+      >
         <div className="flex items-center justify-between">
           <div style={{ fontSize: 22, fontWeight: 700, lineHeight: '30px', letterSpacing: '0.01em' }}>航线</div>
           <button
@@ -166,7 +177,7 @@ export function RouteList() {
         <div className="flex items-center justify-between mt-2.5">
           <div className="flex items-center gap-1.5">
             {([
-              ['all', '全部'], ['created', '最新创建'], ['recent', '最近巡检'], ['stale', '最久未巡检'],
+              ['all', '根据地图展示'], ['created', '最新创建'], ['recent', '最近巡检'], ['stale', '最久未巡检'],
             ] as const).map(([k, name]) => (
               <button
                 key={k}
@@ -187,8 +198,15 @@ export function RouteList() {
         </div>
       </div>
 
-      {/* 列表滚动区：按场景分组（两级目录：场景 → 航线） */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: '2px 16px 16px' }}>
+      {/* 列表滚动区：顶部粘性渐隐，内容滑入头部下方时柔和消隐 */}
+      <div className="flex-1 overflow-y-auto" style={{ padding: '0 16px 16px' }}>
+        <div
+          className="pointer-events-none"
+          style={{
+            position: 'sticky', top: 0, zIndex: 5, height: 14, margin: '0 -16px -12px',
+            background: 'linear-gradient(180deg, var(--bg-base) 20%, rgba(237,239,243,0) 100%)',
+          }}
+        />
         {loading ? <Skeleton rows={3} /> : routes.length === 0 ? (
           <EmptyState text="本机还没有航线" actionText="从无人机同步" onAction={doSync} />
         ) : shown.length === 0 ? (

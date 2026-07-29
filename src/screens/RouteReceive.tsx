@@ -28,11 +28,13 @@ export function RouteReceive() {
         {/* 航线卡：与航线列表卡片同构 */}
         <div className="mt-4">
           <Card>
-            <div className="flex items-center gap-2">
+            <div className="mono" style={{ fontSize: 9.5, letterSpacing: '.06em', color: 'var(--brand-text)' }}>
+              {fresh?.id ?? 'R-05'}
+            </div>
+            <div className="flex items-center gap-2 mt-0.5">
               <div className="flex-1 truncate" style={{ fontSize: 15, fontWeight: 500 }}>
                 {fresh?.name || '未命名航线'}
               </div>
-              <Tag>{fresh?.id ?? 'R-05'}</Tag>
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 mt-2.5">

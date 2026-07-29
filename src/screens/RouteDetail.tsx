@@ -50,7 +50,10 @@ export function RouteDetail({ routeId }: { routeId: string }) {
       <div className="flex-1 overflow-y-auto" style={{ padding: 16, paddingBottom: 84, display: vpFull ? 'none' : undefined }}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="mono" style={{ fontSize: 10, letterSpacing: '.06em', color: 'var(--brand-text)' }}>
+              {route.id}
+            </div>
+            <div className="flex items-center gap-2 min-w-0 mt-0.5">
               <span className="truncate" style={{ fontSize: 18, fontWeight: 600 }}>
                 {route.name || '未命名航线'}
               </span>
@@ -71,7 +74,6 @@ export function RouteDetail({ routeId }: { routeId: string }) {
                   {scene.name}
                 </span>
               )}
-              <Tag>{route.id}</Tag>
               <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                 创建于 {route.recordedAt}
               </span>
