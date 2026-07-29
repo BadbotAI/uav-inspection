@@ -199,7 +199,7 @@ export function RouteList() {
                     setSortKey(k);
                   }}
                 >
-                  {k === 'run' && sortKey === 'run' ? (runDesc ? '最近巡检' : '最久未巡检') : name}
+                  {name}
                   {k === 'run' && (
                     <span
                       style={{
