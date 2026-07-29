@@ -294,7 +294,7 @@ export function Home() {
                           </span>
                         </div>
                         <div className="mono mt-1.5" style={{ fontSize: 11, color: 'var(--text-tertiary)', paddingLeft: 23 }}>
-                          {count} 条航线 · 建图于 {sc.builtAt}
+                          {count} 条航线
                         </div>
                       </div>
                       {/* 场景地图入口：垂直居中，独立点击 */}
