@@ -129,7 +129,7 @@ export function RouteList() {
       <div
         className="shrink-0"
         style={{
-          padding: '16px 16px 10px',
+          padding: '16px 16px 13px',
           background: [
             'linear-gradient(180deg, rgba(76,107,192,.055) 0%, rgba(76,107,192,0) 46%)',
             'linear-gradient(180deg, #F2F4F8 0%, var(--bg-base) 100%)',
@@ -222,13 +222,13 @@ export function RouteList() {
       {/* 列表滚动区：滚动后顶部才出现渐隐，静止时不压字 */}
       <div
         className="flex-1 overflow-y-auto"
-        style={{ padding: '0 16px 16px' }}
+        style={{ padding: '7px 16px 16px' }}
         onScroll={e => setScrolled((e.target as HTMLElement).scrollTop > 4)}
       >
         <div
           className="pointer-events-none"
           style={{
-            position: 'sticky', top: 0, zIndex: 5, height: 14, margin: '0 -16px -12px',
+            position: 'sticky', top: 0, zIndex: 5, height: 14, margin: '-7px -16px -12px',
             background: 'linear-gradient(180deg, var(--bg-base) 20%, rgba(237,239,243,0) 100%)',
             opacity: scrolled ? 1 : 0, transition: 'opacity .2s',
           }}
