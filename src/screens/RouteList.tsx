@@ -25,6 +25,7 @@ export function RouteList() {
   // 根据地图展示 = 按区域分组；其余为全量平铺排序；巡检时间可切近→远/远→近
   const [sortKey, setSortKey] = useState<'all' | 'created' | 'run'>('all');
   const [runDesc, setRunDesc] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
   const [mapScene, setMapScene] = useState<string | null>(null);
   const [mapRouteId, setMapRouteId] = useState<string | null>(null);
   const loading = routes.length === 0 && lastSyncAt === null;
@@ -217,13 +218,18 @@ export function RouteList() {
         </div>
       </div>
 
-      {/* 列表滚动区：顶部粘性渐隐，内容滑入头部下方时柔和消隐 */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: '0 16px 16px' }}>
+      {/* 列表滚动区：滚动后顶部才出现渐隐，静止时不压字 */}
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ padding: '0 16px 16px' }}
+        onScroll={e => setScrolled((e.target as HTMLElement).scrollTop > 4)}
+      >
         <div
           className="pointer-events-none"
           style={{
             position: 'sticky', top: 0, zIndex: 5, height: 14, margin: '0 -16px -12px',
             background: 'linear-gradient(180deg, var(--bg-base) 20%, rgba(237,239,243,0) 100%)',
+            opacity: scrolled ? 1 : 0, transition: 'opacity .2s',
           }}
         />
         {loading ? <Skeleton rows={3} /> : routes.length === 0 ? (
