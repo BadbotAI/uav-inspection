@@ -197,7 +197,10 @@ export function Home() {
               <div className="flex-1 min-w-0">
                 {route ? (
                   <>
-                    <div className="truncate" style={{ fontSize: 16, fontWeight: 600 }}>
+                    <div className="mono" style={{ fontSize: 9.5, letterSpacing: '.06em', color: 'var(--brand-text)' }}>
+                      {route.id}
+                    </div>
+                    <div className="truncate mt-0.5" style={{ fontSize: 16, fontWeight: 600 }}>
                       {route.name || '未命名航线'}
                     </div>
                     <div className="mono flex gap-3 mt-1.5" style={{ fontSize: 11, color: 'var(--brand-subtle-text)' }}>
