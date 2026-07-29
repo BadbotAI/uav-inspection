@@ -345,9 +345,8 @@ export function Home() {
                   }}
                   onClick={() => setPickerStep('region')}
                 >
-                  <IconMap size={13} />
+                  <IconSwitch size={12} />
                   {pickScene?.name ?? '选择区域'}
-                  <IconChevronRight size={11} />
                 </button>
                 <span className="mono flex-1 text-right" style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>
                   {sceneRoutes.length} 条航线
