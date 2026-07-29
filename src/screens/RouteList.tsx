@@ -6,7 +6,7 @@ import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Skeleton, EmptyState } from '../components/Feedback';
 import { BottomSheet } from '../components/BottomSheet';
-import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconChevronDown, IconPin } from '../components/Icons';
+import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconArrowDown, IconPin } from '../components/Icons';
 import { Viewport } from '../components/Viewport';
 import { RouteDelete } from './RouteDelete';
 import { fmtRelDay, daysAgo } from '../constants';
@@ -208,7 +208,7 @@ export function RouteList() {
                         transition: 'transform .15s',
                       }}
                     >
-                      <IconChevronDown size={10} />
+                      <IconArrowDown size={10} />
                     </span>
                   )}
                 </button>

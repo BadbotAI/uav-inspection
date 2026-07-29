@@ -233,3 +233,11 @@ export const IconCameraFill = ({ size }: { size?: number }) => (
     <circle cx="8" cy="8.3" r="1.15" fill="currentColor" />
   </svg>
 );
+
+// 带柄箭头（向下）：排序方向用
+export const IconArrowDown = ({ size }: { size?: number }) => (
+  <svg width={size ?? 16} height={size ?? 16} viewBox="0 0 16 16" fill="none"
+    stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 2.8v10.4M3.8 9 8 13.2 12.2 9" />
+  </svg>
+);
