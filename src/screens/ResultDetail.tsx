@@ -84,20 +84,26 @@ export function ResultDetail({ task, view }: { task: Task; view: ResultView }) {
 
       {/* 全屏时下方信息全部收起 */}
       {!vpFull && <>
-      {/* 收起后的展开条 */}
+      {/* 收起后的展开把手：与展开态的折叠把手同款，向下箭头表示展开 */}
       {collapsed && (
         <button
-          className="flex items-center justify-between shrink-0"
+          className="flex items-center justify-center shrink-0 pressable"
           style={{
-            height: 40, padding: '0 16px', cursor: 'pointer',
+            height: 34, cursor: 'pointer',
             background: 'var(--glass-bar)', borderBottom: '1px solid var(--divider)',
           }}
           onClick={() => setCollapsed(false)}
+          aria-label="展开点云视图"
         >
-          <span className="mono" style={{ fontSize: 11.5, color: 'var(--text-secondary)' }}>点云视图</span>
-          <span className="flex items-center gap-1" style={{ fontSize: 11.5, color: 'var(--text-link)' }}>
-            展开
-            <span style={{ display: 'inline-flex', transform: 'rotate(180deg)' }}><IconChevronDown size={11} /></span>
+          <span
+            className="flex items-center justify-center"
+            style={{
+              width: 46, height: 22, borderRadius: 999,
+              background: 'var(--surface-1)', border: '1px solid var(--border-default)',
+              color: 'var(--text-secondary)', boxShadow: 'var(--shadow-card)',
+            }}
+          >
+            <IconChevronDown size={12} />
           </span>
         </button>
       )}
