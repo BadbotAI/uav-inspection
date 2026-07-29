@@ -345,17 +345,29 @@ export function Home() {
             <div className="flex flex-col" style={{ height: 290 }}>
               <div className="flex items-center gap-2.5 mb-2">
                 <span className="dlabel" style={{ fontSize: 11 }}>巡检区域</span>
+                {/* 地址标签对齐航线页样式；切换按钮独立放在标签右侧 */}
                 <button
-                  className="flex items-center gap-1.5"
+                  className="flex items-center gap-1.5 pressable"
                   style={{
-                    padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
-                    background: 'var(--surface-1)', border: '1px solid var(--brand-border)',
-                    color: 'var(--brand-subtle-text)', fontSize: 12, fontWeight: 500,
+                    padding: '5px 13px', borderRadius: 999, cursor: 'pointer',
+                    background: 'var(--brand-subtle-bg)', border: '1px solid var(--brand-border)',
+                    color: 'var(--brand-subtle-text)', fontSize: 12.5, fontWeight: 500,
                   }}
                   onClick={() => setPickerStep('region')}
                 >
-                  <IconSwitch size={12} />
+                  <IconPin size={13} />
                   {pickScene?.name ?? '选择区域'}
+                </button>
+                <button
+                  className="flex items-center justify-center pressable"
+                  style={{
+                    width: 26, height: 26, borderRadius: 8,
+                    color: 'var(--brand)', cursor: 'pointer', marginLeft: -4,
+                  }}
+                  onClick={() => setPickerStep('region')}
+                  aria-label="切换巡检区域"
+                >
+                  <IconSwitch size={14} />
                 </button>
                 <span className="mono flex-1 text-right" style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>
                   {sceneRoutes.length} 条航线
