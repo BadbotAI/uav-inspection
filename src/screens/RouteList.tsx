@@ -126,9 +126,8 @@ export function RouteList() {
           <button
             className="flex items-center gap-1.5 pressable"
             style={{
-              fontSize: 12, padding: '6px 12px', borderRadius: 999,
-              color: 'var(--brand-subtle-text)', border: '1px solid var(--brand-border)',
-              background: 'var(--brand-subtle-bg)', cursor: 'pointer',
+              fontSize: 12, color: 'var(--text-link)', fontWeight: 500,
+              background: 'transparent', cursor: 'pointer',
               opacity: syncing ? 0.65 : 1,
             }}
             onClick={doSync}
