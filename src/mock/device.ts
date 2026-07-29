@@ -1,5 +1,7 @@
 import type { DeviceState } from '../types';
 
+export const DEVICE_MODEL = 'CX-350 巡检版';
+
 export const DEVICE: DeviceState = {
   id: 'UAV-A31C', connected: true, batteryPct: 82, storageFreeGb: 41.2,
   locQuality: 'good', locP95Cm: 6.2, rttMs: 24, lossPct: 0.3,

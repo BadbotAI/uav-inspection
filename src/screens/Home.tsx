@@ -12,6 +12,7 @@ import { Viewport } from '../components/Viewport';
 import { TaskCard } from './TaskList';
 import { startPreflight } from '../sim/flight';
 import { fmtRelDay } from '../constants';
+import { DEVICE_MODEL } from '../mock/device';
 
 
 export function Home() {
@@ -87,21 +88,29 @@ export function Home() {
         <div style={{ fontSize: 22, fontWeight: 700, lineHeight: '30px', letterSpacing: '0.01em' }}>巡检</div>
 
         {/* 设备卡：白灰质感点阵，点阵向下淡出，与遥测融为一体 */}
-        <div className="mt-3">
+        <div className="mt-5">
           <Card style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
-            {/* 切换设备入口 */}
-            <button
-              className="absolute flex items-center gap-1.5"
-              style={{
-                top: 12, right: 12, zIndex: 5,
-                fontSize: 12, color: 'var(--text-link)', fontWeight: 500,
-                background: 'transparent', cursor: 'pointer',
-              }}
-              onClick={e => { e.stopPropagation(); set({ tab: 'device', deviceSub: null }); }}
-            >
-              <IconSwitch size={13} /> 切换设备
-            </button>
+            {/* 头部：当前设备小标题 + 型号，切换设备与型号行水平对齐 */}
+            <div className="flex items-end justify-between" style={{ padding: '12px 14px 0' }}>
+              <div>
+                <div className="dlabel" style={{ fontSize: 9.5 }}>当前设备</div>
+                <div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>
+                  {DEVICE_MODEL}{device && <span className="mono" style={{ fontSize: 10.5, color: 'var(--text-tertiary)', marginLeft: 6 }}>{device.id}</span>}
+                </div>
+              </div>
+              <button
+                className="flex items-center gap-1.5 pressable"
+                style={{
+                  fontSize: 12, color: 'var(--text-link)', fontWeight: 500,
+                  background: 'transparent', cursor: 'pointer', paddingBottom: 1,
+                }}
+                onClick={e => { e.stopPropagation(); set({ tab: 'device', deviceSub: null }); }}
+              >
+                <IconSwitch size={13} /> 切换设备
+              </button>
+            </div>
             <div
+              className="relative"
               style={{
                 background: [
                   'linear-gradient(180deg, rgba(247,248,250,0) 30%, rgba(247,248,250,.94) 74%, #F7F8FA 100%)',
@@ -113,7 +122,7 @@ export function Home() {
             >
               {/* 所在区域（点击查看场景地图）+ 无人机状态：同几何胶囊，仅以色彩区分 */}
               {device && (
-                <div className="absolute flex items-center gap-1.5" style={{ top: 10, left: 10, zIndex: 5 }}>
+                <div className="absolute flex items-center gap-1.5" style={{ top: 8, left: 10, zIndex: 5 }}>
                   <button
                     className="flex items-center gap-1"
                     style={{
