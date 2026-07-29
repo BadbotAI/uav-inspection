@@ -1,4 +1,4 @@
-// R-11 航线信息：区域 + 扫描方式标签 + 示教备注
+// R-11 航线基础信息：名称 + 扫描方式 + 所属场景地图 + 示教备注
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { api } from '../api';
@@ -9,16 +9,19 @@ import { SCAN_TAGS } from '../mock/routes';
 
 export function RouteEdit({ routeId }: { routeId: string }) {
   const routes = useStore(s => s.routes);
+  const scenes = useStore(s => s.scenes);
   const set = useStore(s => s.set);
   const showToast = useStore(s => s.showToast);
   const route = routes.find(r => r.id === routeId);
   const [name, setName] = useState(route?.name ?? '');
   const [tags, setTags] = useState<string[]>(route?.scanTags ?? []);
   const [note, setNote] = useState(route?.note ?? '');
+  const [sceneId, setSceneId] = useState(route?.sceneId ?? '');
   const [discardOpen, setDiscardOpen] = useState(false);
 
   const dirty = name !== (route?.name ?? '')
     || note !== (route?.note ?? '')
+    || sceneId !== (route?.sceneId ?? '')
     || JSON.stringify(tags) !== JSON.stringify(route?.scanTags ?? []);
 
   useEffect(() => {
@@ -34,7 +37,7 @@ export function RouteEdit({ routeId }: { routeId: string }) {
 
   const save = async () => {
     if (!name.trim()) return;
-    await api.updateRoute(route.id, { name: name.trim(), note: note.trim(), scanTags: tags });
+    await api.updateRoute(route.id, { name: name.trim(), note: note.trim(), scanTags: tags, sceneId });
     const { routes: rs } = await api.getRoutes();
     set({ routes: rs, routeSub: null });
     showToast('已保存');
@@ -66,9 +69,9 @@ export function RouteEdit({ routeId }: { routeId: string }) {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative">
-      <SubHeader title="编辑航线名称" onBack={tryBack} />
+      <SubHeader title="编辑航线基础信息" onBack={tryBack} />
       <div className="flex-1 overflow-y-auto" style={{ padding: 16 }}>
-        <div className="dlabel mb-1.5" style={{ fontSize: 11 }}>区域</div>
+        <div className="dlabel mb-1.5" style={{ fontSize: 11 }}>航线名称</div>
         <input
           style={{ ...inputStyle, height: 44 }}
           maxLength={24}
@@ -99,6 +102,37 @@ export function RouteEdit({ routeId }: { routeId: string }) {
                 onClick={() => toggleTag(t)}
               >
                 {t}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 所属场景地图：单选 */}
+        <div className="dlabel mt-5 mb-2" style={{ fontSize: 11 }}>所属场景地图</div>
+        <div className="flex flex-col gap-1.5">
+          {scenes.map(sc => {
+            const on = sc.id === sceneId;
+            return (
+              <button
+                key={sc.id}
+                className="flex items-center gap-2.5 text-left pressable"
+                style={{
+                  padding: '10px 13px', borderRadius: 10, cursor: 'pointer',
+                  background: on ? 'var(--brand-subtle-bg)' : 'var(--surface-1)',
+                  border: `1px solid ${on ? 'var(--brand-border)' : 'var(--border-default)'}`,
+                }}
+                onClick={() => setSceneId(sc.id)}
+              >
+                <span
+                  className="inline-flex items-center justify-center rounded-full shrink-0"
+                  style={{ width: 15, height: 15, border: `1.5px solid ${on ? 'var(--brand)' : 'var(--border-strong)'}` }}
+                >
+                  {on && <span className="rounded-full" style={{ width: 7, height: 7, background: 'var(--brand)' }} />}
+                </span>
+                <span className="flex-1 truncate" style={{ fontSize: 13.5, fontWeight: on ? 500 : 400 }}>
+                  {sc.name}
+                </span>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>{sc.id}</span>
               </button>
             );
           })}

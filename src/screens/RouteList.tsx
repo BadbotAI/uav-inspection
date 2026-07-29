@@ -6,7 +6,7 @@ import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Skeleton, EmptyState } from '../components/Feedback';
 import { BottomSheet } from '../components/BottomSheet';
-import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconPin } from '../components/Icons';
+import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconChevronDown, IconPin } from '../components/Icons';
 import { Viewport } from '../components/Viewport';
 import { RouteDelete } from './RouteDelete';
 import { fmtRelDay, daysAgo } from '../constants';
@@ -22,20 +22,22 @@ export function RouteList() {
   const [actionRoute, setActionRoute] = useState<Route | null>(null);
   const [deleteRoute, setDeleteRoute] = useState<Route | null>(null);
   const [query, setQuery] = useState('');
-  // 全部 = 按区域分组；其余筛选为全量平铺排序
-  const [sortKey, setSortKey] = useState<'all' | 'created' | 'recent' | 'stale'>('all');
+  // 根据地图展示 = 按区域分组；其余为全量平铺排序；巡检时间可切近→远/远→近
+  const [sortKey, setSortKey] = useState<'all' | 'created' | 'run'>('all');
+  const [runDesc, setRunDesc] = useState(true);
   const [mapScene, setMapScene] = useState<string | null>(null);
   const [mapRouteId, setMapRouteId] = useState<string | null>(null);
   const loading = routes.length === 0 && lastSyncAt === null;
 
   const cmp = (a: Route, b: Route): number => {
     if (sortKey === 'all' || sortKey === 'created') return b.recordedAt.localeCompare(a.recordedAt);
-    if (sortKey === 'recent') return (b.lastRunAt ?? '').localeCompare(a.lastRunAt ?? '');
-    // 最久未巡检：从未巡检的排最前，其余按上次巡检时间升序
+    // 巡检时间：近→远时从未巡检垫底；远→近时从未巡检最前
     if (!a.lastRunAt && !b.lastRunAt) return 0;
-    if (!a.lastRunAt) return -1;
-    if (!b.lastRunAt) return 1;
-    return a.lastRunAt.localeCompare(b.lastRunAt);
+    if (!a.lastRunAt) return runDesc ? 1 : -1;
+    if (!b.lastRunAt) return runDesc ? -1 : 1;
+    return runDesc
+      ? b.lastRunAt.localeCompare(a.lastRunAt)
+      : a.lastRunAt.localeCompare(b.lastRunAt);
   };
 
   const shown = routes
@@ -177,23 +179,40 @@ export function RouteList() {
         <div className="flex items-center justify-between mt-2.5">
           <div className="flex items-center gap-1.5">
             {([
-              ['all', '根据地图展示'], ['created', '最新创建'], ['recent', '最近巡检'], ['stale', '最久未巡检'],
-            ] as const).map(([k, name]) => (
-              <button
-                key={k}
-                className="pressable"
-                style={{
-                  fontSize: 11.5, padding: '5px 10px', borderRadius: 999, cursor: 'pointer',
-                  background: sortKey === k ? 'var(--brand-subtle-bg)' : 'var(--surface-3)',
-                  border: `1px solid ${sortKey === k ? 'var(--brand-border)' : 'transparent'}`,
-                  color: sortKey === k ? 'var(--brand-subtle-text)' : 'var(--text-secondary)',
-                  fontWeight: sortKey === k ? 500 : 400,
-                }}
-                onClick={() => setSortKey(k)}
-              >
-                {name}
-              </button>
-            ))}
+              ['all', '根据地图展示'], ['created', '最新创建'], ['run', '巡检时间'],
+            ] as const).map(([k, name]) => {
+              const active = sortKey === k;
+              return (
+                <button
+                  key={k}
+                  className="pressable flex items-center gap-1"
+                  style={{
+                    fontSize: 11.5, padding: '5px 10px', borderRadius: 999, cursor: 'pointer',
+                    background: active ? 'var(--brand-subtle-bg)' : 'var(--surface-3)',
+                    border: `1px solid ${active ? 'var(--brand-border)' : 'transparent'}`,
+                    color: active ? 'var(--brand-subtle-text)' : 'var(--text-secondary)',
+                    fontWeight: active ? 500 : 400,
+                  }}
+                  onClick={() => {
+                    if (k === 'run' && sortKey === 'run') { setRunDesc(v => !v); return; }
+                    setSortKey(k);
+                  }}
+                >
+                  {k === 'run' && sortKey === 'run' ? (runDesc ? '最近巡检' : '最久未巡检') : name}
+                  {k === 'run' && (
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        transform: sortKey === 'run' && !runDesc ? 'rotate(180deg)' : 'none',
+                        transition: 'transform .15s',
+                      }}
+                    >
+                      <IconChevronDown size={10} />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -263,7 +282,7 @@ export function RouteList() {
               setActionRoute(null);
             }}
           >
-            <IconEdit size={14} /> 编辑航线名称
+            <IconEdit size={14} /> 编辑航线基础信息
           </button>
           <button
             className="flex items-center gap-2.5 text-left"

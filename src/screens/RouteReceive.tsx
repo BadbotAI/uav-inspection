@@ -79,7 +79,7 @@ export function RouteReceive() {
           style={{ fontSize: 12.5, color: 'var(--text-link)', cursor: 'pointer' }}
           onClick={() => fresh && set({ routeSub: { view: 'edit', id: fresh.id, from: 'receive' } })}
         >
-          编辑航线名称
+          编辑航线基础信息
         </button>
       </div>
     </div>

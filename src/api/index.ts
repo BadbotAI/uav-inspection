@@ -63,11 +63,12 @@ export const api = {
     return { routes: routes.map(r => ({ ...r })), lastSyncAt };
   },
 
-  async updateRoute(id: string, patch: Pick<Route, 'name' | 'note' | 'scanTags'>): Promise<Route> {
+  async updateRoute(id: string, patch: Pick<Route, 'name' | 'note' | 'scanTags' | 'sceneId'>): Promise<Route> {
     await delay();
     const r = routes.find(x => x.id === id);
     if (!r) throw new Error('E-R404 航线不存在');
     r.name = patch.name;
+    r.sceneId = patch.sceneId;
     r.note = patch.note;
     r.scanTags = patch.scanTags;
     return { ...r };
