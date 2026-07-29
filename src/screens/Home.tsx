@@ -90,20 +90,18 @@ export function Home() {
 
         {/* 设备卡：白灰质感点阵，点阵向下淡出，与遥测融为一体 */}
         <div className="mt-5">
+          <div className="dlabel mb-2" style={{ fontSize: 11 }}>当前设备</div>
           <Card style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
-            {/* 头部：当前设备小标题 + 型号，切换设备与型号行水平对齐 */}
-            <div className="flex items-end justify-between" style={{ padding: '12px 14px 0' }}>
-              <div>
-                <div className="dlabel" style={{ fontSize: 9.5 }}>当前设备</div>
-                <div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>
-                  {DEVICE_MODEL}{device && <span className="mono" style={{ fontSize: 10.5, color: 'var(--text-tertiary)', marginLeft: 6 }}>{device.id}</span>}
-                </div>
+            {/* 头部：型号行，切换设备与型号水平对齐 */}
+            <div className="flex items-center justify-between" style={{ padding: '12px 14px 0' }}>
+              <div style={{ fontSize: 13.5, fontWeight: 500 }}>
+                {DEVICE_MODEL}{device && <span className="mono" style={{ fontSize: 10.5, color: 'var(--text-tertiary)', marginLeft: 6 }}>{device.id}</span>}
               </div>
               <button
                 className="flex items-center gap-1.5 pressable"
                 style={{
                   fontSize: 12, color: 'var(--text-link)', fontWeight: 500,
-                  background: 'transparent', cursor: 'pointer', paddingBottom: 1,
+                  background: 'transparent', cursor: 'pointer',
                 }}
                 onClick={e => { e.stopPropagation(); set({ tab: 'device', deviceSub: null }); }}
               >
@@ -183,7 +181,8 @@ export function Home() {
         </div>
 
         {/* 航线卡：品牌色系，与普通卡拉开 */}
-        <div className="mt-3">
+        <div className="mt-4">
+          <div className="dlabel mb-2" style={{ fontSize: 11 }}>已选航线</div>
           <div
             className="cursor-pointer"
             style={{
@@ -196,12 +195,9 @@ export function Home() {
             <div className="flex items-center gap-3">
               {/* 左：航线信息 */}
               <div className="flex-1 min-w-0">
-                <span className="dlabel" style={{ fontSize: 10.5, color: 'var(--brand-subtle-text)', opacity: .8 }}>
-                  已选航线
-                </span>
                 {route ? (
                   <>
-                    <div className="truncate mt-2" style={{ fontSize: 16, fontWeight: 600 }}>
+                    <div className="truncate" style={{ fontSize: 16, fontWeight: 600 }}>
                       {route.name || '未命名航线'}
                     </div>
                     <div className="mono flex gap-3 mt-1.5" style={{ fontSize: 11, color: 'var(--brand-subtle-text)' }}>
@@ -211,7 +207,7 @@ export function Home() {
                     </div>
                   </>
                 ) : (
-                  <div className="mt-2" style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>未选择航线</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>未选择航线</div>
                 )}
               </div>
               {/* 右：更换航线（垂直居中） */}
