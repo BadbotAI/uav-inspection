@@ -123,7 +123,7 @@ export function Home() {
             >
               {/* 所在区域（点击查看场景地图）+ 无人机状态：同几何胶囊，仅以色彩区分 */}
               {device && (
-                <div className="absolute flex items-center gap-1.5" style={{ top: 8, left: 10, zIndex: 5 }}>
+                <div className="absolute flex items-center gap-1.5" style={{ top: 18, left: 10, zIndex: 5 }}>
                   <button
                     className="flex items-center gap-1"
                     style={{
@@ -163,7 +163,7 @@ export function Home() {
                   </span>
                 </div>
               )}
-              <div style={{ padding: '10px 0 0' }}>
+              <div style={{ padding: '16px 0 0' }}>
                 <DroneModel height={158} mode={droneStatus.mode} />
               </div>
               {/* 遥测一行：图标 + 数值 + 小字标签（保证语义可读） */}
@@ -183,7 +183,7 @@ export function Home() {
         </div>
 
         {/* 航线卡：品牌色系，与普通卡拉开 */}
-        <div className="mt-2.5">
+        <div className="mt-3">
           <div
             className="cursor-pointer"
             style={{
@@ -230,7 +230,7 @@ export function Home() {
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-8">
           <CtaRow width={190}>
             {/* 禁用态点击引导到解决入口：未连接→设备页，未选航线→选择浮层 */}
             <div
@@ -249,7 +249,7 @@ export function Home() {
 
         {/* 上次巡检：与巡检历史卡片同一组件 */}
         {lastTask && (
-          <div className="mt-5">
+          <div className="mt-7">
             <div className="dlabel mb-2" style={{ fontSize: 11 }}>上次巡检 · {fmtRelDay(lastTask.startedAt)}</div>
             <TaskCard
               task={lastTask}
