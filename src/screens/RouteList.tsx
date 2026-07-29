@@ -219,20 +219,21 @@ export function RouteList() {
         </div>
       </div>
 
-      {/* 列表滚动区：滚动后顶部才出现渐隐，静止时不压字 */}
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{ padding: '7px 16px 16px' }}
-        onScroll={e => setScrolled((e.target as HTMLElement).scrollTop > 4)}
-      >
+      {/* 列表滚动区：渐隐层固定在滚动区顶部（非 sticky，避免滚动错位），滚动后才出现 */}
+      <div className="flex-1 relative" style={{ minHeight: 0 }}>
         <div
-          className="pointer-events-none"
+          className="pointer-events-none absolute"
           style={{
-            position: 'sticky', top: 0, zIndex: 5, height: 14, margin: '-7px -16px -12px',
-            background: 'linear-gradient(180deg, var(--bg-base) 20%, rgba(237,239,243,0) 100%)',
+            top: 0, left: 0, right: 0, height: 16, zIndex: 5,
+            background: 'linear-gradient(180deg, var(--bg-base) 25%, rgba(237,239,243,0) 100%)',
             opacity: scrolled ? 1 : 0, transition: 'opacity .2s',
           }}
         />
+        <div
+          className="h-full overflow-y-auto"
+          style={{ padding: '7px 16px 16px' }}
+          onScroll={e => setScrolled((e.target as HTMLElement).scrollTop > 4)}
+        >
         {loading ? <Skeleton rows={3} /> : routes.length === 0 ? (
           <EmptyState text="本机还没有航线" actionText="从无人机同步" onAction={doSync} />
         ) : shown.length === 0 ? (
@@ -269,6 +270,7 @@ export function RouteList() {
             </div>
           );
         })}
+        </div>
       </div>
 
       {/* 卡片操作 */}
