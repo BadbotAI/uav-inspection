@@ -408,6 +408,7 @@ async function finishMission() {
     cloudCompletePct: full ? 97.8 : 94.1,
     trackCompletePct: full ? 99.4 : 96.0,
     volumeCalcSec: full ? 63 : 31,
+    volumeErrPct: full ? 2.8 : 4.9,
     cloudSharePath: `\\\\UAV-A31C\\scans\\${stamp}\\`,
     cloudSizeMb: Math.round(742 * Math.max(0.2, m.prog)),
     stacks,

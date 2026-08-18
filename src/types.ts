@@ -45,6 +45,9 @@ export interface Route {
 // 明细异常情况：识别不清晰 / 部分遮挡 / 未覆盖 / 变化异常
 export type StackIssue = 'unclear' | 'occluded' | 'uncovered' | 'changed';
 
+// 货物绑定标签形式：二维码 / 条码 / RFID（具体形式设计阶段确认）
+export type CargoTagType = 'qr' | 'barcode' | 'rfid';
+
 export interface Stack {
   id: string;
   name: string;          // '堆体 A' | '货位 B1'
@@ -55,6 +58,9 @@ export interface Stack {
   surfaceCoverPct: number;
   occlusionNote: string; // 遮挡说明，medium/low 必填
   issue?: StackIssue | null; // 异常情况标注
+  // 货物绑定标签：识别到时记录形式与编码；tagCode 为 null 表示标签存在但未识别到
+  tagType?: CargoTagType | null;
+  tagCode?: string | null;
   // 仅 stacked 有值
   layerCount: number | null;
   perLayerCount: number | null;
@@ -83,6 +89,7 @@ export interface Task {
   cloudCompletePct: number;
   trackCompletePct: number;
   volumeCalcSec: number;
+  volumeErrPct: number;  // 本次体积测算估计误差 ±%（规格上限 5%）
   cloudSharePath: string;
   cloudSizeMb: number;
   stacks: Stack[];

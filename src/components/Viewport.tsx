@@ -27,7 +27,7 @@ export function Viewport({
   waypointCount, altitudeM, sceneId, highlightMinClearance, pip, label, pipLabel,
   layers, layerPanel, presets, defaultPreset = 'iso',
   flight, onSelectPile, selectedPile, labelNames, fullscreenable, labelLeft,
-  onSwapChange,
+  onSwapChange, perf,
 }: {
   waypointCount: number;
   altitudeM: number;
@@ -47,6 +47,7 @@ export function Viewport({
   fullscreenable?: boolean;
   labelLeft?: number;
   onSwapChange?: (swapped: boolean) => void;
+  perf?: boolean;            // 显示场景加载耗时与实时帧率（性能指标）
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,6 +59,8 @@ export function Viewport({
   const [lay, setLay] = useState<ViewportLayers>(layers);
   const [pipH, setPipH] = useState(0);
   const [userSwap, setUserSwap] = useState(false);
+  const [loadMs, setLoadMs] = useState<number | null>(null);
+  const [fps, setFps] = useState<number | null>(null);
   const vpFull = useStore(s => s.vpFull);
   const setStore = useStore(s => s.set);
   // 主视图与实时画面可点击互换：停障强制切换与手动切换取异或
@@ -66,6 +69,7 @@ export function Viewport({
 
   useEffect(() => {
     const canvas = canvasRef.current!;
+    const t0 = performance.now();
     const engine = new Engine(canvas, {
       waypointCount, altitudeM, sceneId,
       highlightMinClearance, pip, labelNames,
@@ -77,6 +81,8 @@ export function Viewport({
     engineRef.current = engine;
     engine.setLayers(lay);
     engine.setPreset(defaultPreset);
+    // 场景加载耗时：从引擎构建到首帧渲染完成
+    requestAnimationFrame(() => setLoadMs(Math.round(performance.now() - t0)));
 
     const ro = new ResizeObserver(() => {
       engine.resize();
@@ -89,6 +95,23 @@ export function Viewport({
   }, [waypointCount, altitudeM, sceneId]);
 
   useEffect(() => { engineRef.current?.setLayers(lay); }, [lay]);
+
+  // 交互帧率实测：逐帧计数，每秒刷新一次读数
+  useEffect(() => {
+    if (!perf) return;
+    let raf = 0, frames = 0, last = performance.now();
+    const tick = (now: number) => {
+      frames += 1;
+      if (now - last >= 1000) {
+        setFps(Math.round((frames * 1000) / (now - last)));
+        frames = 0;
+        last = now;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [perf]);
 
   // 画中画画布尺寸随 pipH 变化后重新适配渲染缓冲
   useEffect(() => { engineRef.current?.resize(); }, [pipH]);
@@ -152,6 +175,19 @@ export function Viewport({
           }}
         >
           {mainLabel}
+        </div>
+      )}
+
+      {/* 性能指标：场景加载耗时 + 实时帧率（规格：加载 ≤10s、≥30FPS） */}
+      {perf && loadMs != null && (
+        <div
+          className="absolute mono pointer-events-none"
+          style={{
+            right: 12, bottom: 12, fontSize: 9.5, letterSpacing: '.04em',
+            color: 'rgba(255,255,255,.55)', textShadow: '0 1px 2px rgba(0,0,0,.4)',
+          }}
+        >
+          加载 {loadMs < 1000 ? `${loadMs}ms` : `${(loadMs / 1000).toFixed(1)}s`} · {fps ?? '--'} FPS
         </div>
       )}
 

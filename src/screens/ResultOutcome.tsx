@@ -13,6 +13,9 @@ const ISSUE_TEXT = {
   uncovered: '未完整覆盖 · 本次航线未扫到该区域，数据不完整',
   changed: '较上次变化异常 · 建议人工复核',
 } as const;
+
+// 货物绑定标签形式文案（二维码/条码/RFID，具体形式设计阶段确认）
+const TAG_NAME = { qr: '二维码', barcode: '条码', rfid: 'RFID' } as const;
 import type { Task } from '../types';
 
 const cardStyle: React.CSSProperties = {
@@ -46,6 +49,7 @@ export function ResultOutcome({
   const totalCount = task.stacks.reduce((a, s) => a + (s.totalCount ?? 0), 0);
   const unitName = isBulk ? '堆体' : '货位';
   const jsonName = `report_${task.id}.json`;
+  const pdfName = `report_${task.id}.pdf`;
   const photoCount = Math.max(6, task.waypointDone - 2);
   const packSizeMb = Math.round(task.cloudSizeMb + task.durationSec * 1.1 + photoCount * 2.4);
 
@@ -62,7 +66,10 @@ export function ResultOutcome({
       bulkDensityTPerM3: density,
       totalTons: tons,
       attachments: {
-        pointCloud: `${task.id}_cloud_sparse.pcd`,
+        model: `${task.id}_cloud_sparse.pcd`,
+        volume: `${task.id}_volume.json`,
+        inventory: `${task.id}_inventory.json`,
+        report: pdfName,
         video: `${task.id}_video.mp4`,
         photos: photoCount,
       },
@@ -150,6 +157,11 @@ export function ResultOutcome({
                   {s.position} · {s.cargoType === 'bulk' ? '散料堆体' : '规则码垛'}
                   {s.totalCount != null && ` · ${s.layerCount} 层 × ${s.perLayerCount} 件/层`}
                 </div>
+                {s.tagType && (
+                  <div className="mono mt-0.5" style={{ fontSize: 10.5, color: s.tagCode ? 'var(--text-tertiary)' : 'var(--warning)' }}>
+                    {s.tagCode ? `${TAG_NAME[s.tagType]} ${s.tagCode}` : `${TAG_NAME[s.tagType]}标签未识别`}
+                  </div>
+                )}
                 {s.issue && (
                   <div className="flex items-center gap-1 mt-1" style={{ fontSize: 10.5, color: 'var(--warning)' }}>
                     <svg width="11" height="11" viewBox="0 0 16 16" className="shrink-0">
@@ -215,7 +227,10 @@ export function ResultOutcome({
             {task.coveragePct < 100 ? '部分覆盖航线区域' : '完整覆盖航线区域'}
           </div>
           <div className="mono mt-1" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-            完成航点 {task.waypointDone}/{task.waypointTotal} · 定位精度 ±{task.locP95Cm.toFixed(1)}cm · 测算 {task.volumeCalcSec}s
+            完成航点 {task.waypointDone}/{task.waypointTotal} · 定位精度 ±{task.locP95Cm.toFixed(1)}cm
+          </div>
+          <div className="mono mt-0.5" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+            体积误差 ±{task.volumeErrPct.toFixed(1)}% · 测算耗时 {task.volumeCalcSec}s
           </div>
         </div>
       </div>
@@ -233,7 +248,7 @@ export function ResultOutcome({
           <div className="flex-1 min-w-0">
             <div style={{ fontSize: 13.5, fontWeight: 500 }}>结果报告</div>
             <div className="mt-0.5" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-              体积测算 · {unitName}明细 · 数据质量 · JSON
+              体积测算 · {unitName}明细 · 盘点汇总 · PDF / JSON
             </div>
           </div>
           <button
@@ -309,7 +324,7 @@ export function ResultOutcome({
             }}
           >
             <span className="flex-1 truncate" style={{ fontSize: 16, fontWeight: 600 }}>结果报告</span>
-            <span className="mono" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{jsonName}</span>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{pdfName}</span>
             <button
               className="flex items-center justify-center pressable"
               style={{ width: 36, height: 36, fontSize: 19, color: 'var(--text-secondary)', cursor: 'pointer' }}
@@ -334,6 +349,8 @@ export function ResultOutcome({
                 ['任务状态', task.status === 'success' ? '完成' : task.status === 'aborted' ? '中断' : '失败'],
                 ['覆盖度', `${task.coveragePct}%`],
                 ['完成航点', `${task.waypointDone}/${task.waypointTotal}`],
+                ['体积误差', `±${task.volumeErrPct.toFixed(1)}%`],
+                ['处理状态', '机载处理完成'],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between" style={{ padding: '3px 0' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{k}</span>
@@ -363,6 +380,11 @@ export function ResultOutcome({
                       {s.totalCount != null ? `${s.totalCount.toLocaleString()} 件 · ` : ''}{s.volumeM3.toFixed(1)}m³
                     </span>
                   </div>
+                  {s.tagType && (
+                    <div className="mono" style={{ fontSize: 10, color: s.tagCode ? 'var(--text-tertiary)' : 'var(--warning)' }}>
+                      {s.tagCode ? `${TAG_NAME[s.tagType]} ${s.tagCode}` : `${TAG_NAME[s.tagType]}标签未识别`}
+                    </div>
+                  )}
                   {s.issue && (
                     <div style={{ fontSize: 10, color: 'var(--warning)' }}>{ISSUE_TEXT[s.issue]}</div>
                   )}
@@ -372,7 +394,10 @@ export function ResultOutcome({
               <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '12px 0' }} />
               <div className="dlabel mb-1">附件清单</div>
               {[
-                ['稀疏点云', `${task.id}_cloud_sparse.pcd`],
+                ['三维模型', `${task.id}_cloud_sparse.pcd`],
+                ['体积结果', `${task.id}_volume.json`],
+                ['盘点汇总', `${task.id}_inventory.json`],
+                ['巡检报告', pdfName],
                 ['巡检视频', `${task.id}_video.mp4`],
                 ['点位图片', `${photoCount} 张`],
               ].map(([k, v]) => (

@@ -145,6 +145,7 @@ export function Device() {
                 <div className="flex flex-wrap gap-1.5 mt-2.5">
                   <Tag>电量 {Math.round(device.batteryPct)}%</Tag>
                   <Tag>存储 {device.storageFreeGb.toFixed(1)}GB</Tag>
+                  <Tag>局域网 {device.rttMs}ms</Tag>
 <span
                     className="flex items-center gap-1"
                     style={{
@@ -233,7 +234,7 @@ export function Device() {
         </div>
 
         <div className="mt-3 leading-[1.6]" style={{ fontSize: 11.5, color: 'var(--text-tertiary)' }}>
-          同时仅连接一台无人机；连接其他设备时当前设备将断开。
+          系统持续接入同一局域网内 {1 + others.length} 台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台，连接其他设备时当前设备将断开。
         </div>
 
         {/* 设置 */}

@@ -88,6 +88,20 @@ export function Settings() {
           退出登录
         </Button>
       </div>
+
+      <div className="dlabel mt-4 mb-1.5" style={{ fontSize: 11 }}>关于</div>
+      <Card>
+        {[
+          ['应用版本', '1.0.0'],
+          ['适配系统', 'Android 13 及以上'],
+          ['运行网络', '局域网直连，支持离线运行'],
+        ].map(([k, v], i) => (
+          <div key={k} className="flex items-center justify-between" style={{ padding: i > 0 ? '8px 0 0' : 0, borderTop: i > 0 ? '1px solid var(--border-subtle)' : 'none', marginTop: i > 0 ? 8 : 0 }}>
+            <span style={{ fontSize: 13 }}>{k}</span>
+            <span className="mono" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{v}</span>
+          </div>
+        ))}
+      </Card>
       </div>
 
       <BottomSheet open={cleanOpen} onMask={() => setCleanOpen(false)}>

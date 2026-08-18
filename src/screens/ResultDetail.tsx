@@ -79,6 +79,7 @@ export function ResultDetail({ task, view }: { task: Task; view: ResultView }) {
           selectedPile={selected !== null ? pileIdxOf(task, selected) : null}
           labelNames={task.stacks.map(s => s.name)}
           fullscreenable
+          perf
         />
       </div>
 
