@@ -30,9 +30,12 @@ const ICONS: Record<Tab, React.ReactNode> = {
     </svg>
   ),
   settings: (
+    // 滑杆：三条轨道 + 滑钮，与设置页内的参数调节语义一致
     <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <circle cx="10" cy="10" r="2.6" />
-      <path d="M10 2.2v2.4M10 15.4v2.4M2.2 10h2.4M15.4 10h2.4M4.5 4.5l1.7 1.7M13.8 13.8l1.7 1.7M15.5 4.5l-1.7 1.7M6.2 13.8l-1.7 1.7" />
+      <path d="M2.5 5.2h15M2.5 10h15M2.5 14.8h15" />
+      <circle cx="7.2" cy="5.2" r="1.9" fill="var(--glass-bar, #FFF)" />
+      <circle cx="13" cy="10" r="1.9" fill="var(--glass-bar, #FFF)" />
+      <circle cx="5.6" cy="14.8" r="1.9" fill="var(--glass-bar, #FFF)" />
     </svg>
   ),
 };

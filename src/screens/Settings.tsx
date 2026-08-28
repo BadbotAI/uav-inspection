@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { BottomSheet, Dialog } from '../components/BottomSheet';
-import { IconLogout } from '../components/Icons';
+import { IconLogout, IconChevronRight } from '../components/Icons';
 import { fmtDateShort, fmtHM } from '../constants';
 import { canLogout, logout } from '../sim/session';
 
@@ -15,6 +15,7 @@ export function Settings() {
   const loginAt = useStore(s => s.loginAt);
   const device = useStore(s => s.device);
   const set = useStore(s => s.set);
+  const gotoTab = useStore(s => s.gotoTab);
   const showToast = useStore(s => s.showToast);
   const [densityText, setDensityText] = useState(density.toFixed(2));
   const [cleanOpen, setCleanOpen] = useState(false);
@@ -86,12 +87,29 @@ export function Settings() {
           </div>
         </div>
         <div style={{ borderTop: '1px solid var(--line)', margin: '10px 0' }} />
-        <div className="flex items-center justify-between">
-          <div className="text-[13px]">绑定设备</div>
-          <div className="mono text-[12px]" style={{ color: 'var(--txt3)' }}>
-            {device?.connected ? device.id : '未连接'}
-          </div>
-        </div>
+        {/* 绑定设备：整行可点，跳到设备页查看或切换；未连接时提示去连接 */}
+        <button
+          className="w-full flex items-center justify-between pressable"
+          style={{ background: 'transparent', cursor: 'pointer', color: 'var(--text-primary)' }}
+          onClick={() => gotoTab('device')}
+          aria-label="前往设备页"
+        >
+          <span className="text-[13px]">绑定设备</span>
+          <span className="flex items-center gap-1.5">
+            {device?.connected ? (
+              <>
+                <span
+                  className="rounded-full"
+                  style={{ width: 6, height: 6, background: device.sensorsOk ? 'var(--success)' : 'var(--danger)' }}
+                />
+                <span className="mono text-[12px]" style={{ color: 'var(--txt3)' }}>{device.id}</span>
+              </>
+            ) : (
+              <span className="text-[12px]" style={{ color: 'var(--text-link)' }}>未连接，去连接</span>
+            )}
+            <span style={{ color: 'var(--text-placeholder)', display: 'inline-flex' }}><IconChevronRight size={12} /></span>
+          </span>
+        </button>
       </Card>
 
       <div className="dlabel mt-4 mb-1.5" style={{ fontSize: 11 }}>测算参数</div>
