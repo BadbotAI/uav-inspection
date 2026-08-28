@@ -14,6 +14,71 @@ import { startPreflight } from '../sim/flight';
 import { fmtRelDay } from '../constants';
 import { DEVICE_MODEL } from '../mock/device';
 
+// 冷启动引导：三步进度，完成的打勾，未完成的可点跳到对应入口
+function StartGuide({ steps }: { steps: { title: string; desc: string; done: boolean; onClick?: () => void }[] }) {
+  const doneCount = steps.filter(s => s.done).length;
+  return (
+    <Card style={{ padding: '12px 14px' }}>
+      <div className="flex items-center justify-between">
+        <span style={{ fontSize: 13.5, fontWeight: 600 }}>开始使用</span>
+        <span className="mono" style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>{doneCount}/{steps.length}</span>
+      </div>
+      <div className="mt-2.5 flex flex-col">
+        {steps.map((s, i) => {
+          const current = !s.done && steps.slice(0, i).every(p => p.done);
+          return (
+            <button
+              key={s.title}
+              className={`flex items-start gap-2.5 text-left ${s.done ? '' : 'pressable'}`}
+              style={{
+                padding: '8px 0', background: 'transparent', cursor: s.done ? 'default' : 'pointer',
+                borderTop: i > 0 ? '1px solid var(--border-subtle)' : 'none',
+                color: 'var(--text-primary)',
+              }}
+              onClick={() => { if (!s.done) s.onClick?.(); }}
+              disabled={s.done}
+            >
+              <span
+                className="flex items-center justify-center shrink-0 mono"
+                style={{
+                  width: 20, height: 20, borderRadius: 999, fontSize: 10.5, marginTop: 1,
+                  background: s.done ? 'var(--success)' : current ? 'var(--brand)' : 'var(--surface-3)',
+                  color: s.done || current ? '#FFFFFF' : 'var(--text-tertiary)',
+                }}
+              >
+                {s.done ? (
+                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.4 8.4 6.6 11.6 12.6 4.8" />
+                  </svg>
+                ) : i + 1}
+              </span>
+              <span className="flex-1 min-w-0">
+                <span
+                  className="block"
+                  style={{
+                    fontSize: 13, fontWeight: current ? 500 : 400,
+                    color: s.done ? 'var(--text-tertiary)' : 'var(--text-primary)',
+                    textDecoration: s.done ? 'line-through' : 'none',
+                  }}
+                >
+                  {s.title}
+                </span>
+                {!s.done && (
+                  <span className="block mt-0.5 leading-[1.5]" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{s.desc}</span>
+                )}
+              </span>
+              {!s.done && (
+                <span style={{ color: 'var(--text-placeholder)', display: 'inline-flex', marginTop: 3 }}>
+                  <IconChevronRight size={12} />
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
 
 export function Home() {
   const device = useStore(s => s.device);
@@ -47,6 +112,9 @@ export function Home() {
   // 「上次巡检」= 最新一条巡检记录（新任务完成后即时置顶更新）
   const lastTask = tasks[0] ?? null;
   const connected = !!device?.connected;
+  const noRoutes = routes.length === 0;
+  // 冷启动 / 中途缺环节时展示引导：设备未连接或本机没有航线
+  const showGuide = !device || noRoutes;
 
   // 「状态」= 自检状态 / 飞行中
   const statusText = !device ? '—'
@@ -88,14 +156,39 @@ export function Home() {
       <div className="flex-1 overflow-y-auto" style={{ padding: 16 }}>
         <div style={{ fontSize: 22, fontWeight: 700, lineHeight: '30px', letterSpacing: '0.01em' }}>巡检</div>
 
+        {showGuide && (
+          <div className="mt-5">
+            <StartGuide
+              steps={[
+                {
+                  title: '连接无人机', done: connected,
+                  desc: '无人机开机后，与手机接入同一局域网，在设备页发现并连接',
+                  onClick: () => set({ tab: 'device', deviceSub: null }),
+                },
+                {
+                  title: '同步航线', done: !noRoutes,
+                  desc: '航线由无人机录制，同步到本机后才能选择执行',
+                  onClick: () => set({ tab: 'routes', routeSub: null }),
+                },
+                {
+                  title: '选择航线，一键启动', done: !!route && connected && !noRoutes,
+                  desc: '起飞前自动完成自检，全程无需手动操控',
+                  onClick: () => (noRoutes ? set({ tab: 'routes', routeSub: null }) : setPickerOpen(true)),
+                },
+              ]}
+            />
+          </div>
+        )}
+
         {/* 设备卡：白灰质感点阵，点阵向下淡出，与遥测融为一体 */}
         <div className="mt-5">
           <div className="dlabel mb-2" style={{ fontSize: 11 }}>当前设备</div>
           <Card style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
-            {/* 头部：型号行，切换设备与型号水平对齐 */}
+            {/* 头部：型号行，切换设备与型号水平对齐；未绑定设备时显示未连接 */}
             <div className="flex items-center justify-between" style={{ padding: '12px 14px 0' }}>
-              <div style={{ fontSize: 13.5, fontWeight: 500 }}>
-                {DEVICE_MODEL}{device && <span className="mono" style={{ fontSize: 10.5, color: 'var(--text-tertiary)', marginLeft: 6 }}>{device.id}</span>}
+              <div style={{ fontSize: 13.5, fontWeight: 500, color: device ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>
+                {device ? DEVICE_MODEL : '未连接无人机'}
+                {device && <span className="mono" style={{ fontSize: 10.5, color: 'var(--text-tertiary)', marginLeft: 6 }}>{device.id}</span>}
               </div>
               <button
                 className="flex items-center gap-1.5 pressable"
@@ -105,7 +198,7 @@ export function Home() {
                 }}
                 onClick={e => { e.stopPropagation(); set({ tab: 'device', deviceSub: null }); }}
               >
-                <IconSwitch size={13} /> 切换设备
+                {device ? <><IconSwitch size={13} /> 切换设备</> : <><IconDrone size={13} /> 连接设备</>}
               </button>
             </div>
             <div
@@ -164,6 +257,12 @@ export function Home() {
               <div style={{ padding: '16px 0 0' }}>
                 <DroneModel height={158} mode={droneStatus.mode} />
               </div>
+              {/* 未绑定设备：模型灰显，给出连接前提 */}
+              {!device && (
+                <div className="text-center leading-[1.6]" style={{ fontSize: 11, color: 'var(--text-tertiary)', padding: '0 24px 4px', marginTop: -6 }}>
+                  请确认无人机已开机，且与手机接入同一局域网
+                </div>
+              )}
               {/* 遥测一行：图标 + 数值 + 小字标签（保证语义可读） */}
               <div className="flex items-start justify-center" style={{ gap: 30, padding: '4px 8px 12px' }}>
                 {tele.map(it => (
@@ -190,12 +289,19 @@ export function Home() {
               background: 'var(--brand-subtle-bg)',
               border: '1px solid var(--brand-border)',
             }}
-            onClick={() => setPickerOpen(true)}
+            onClick={() => (noRoutes ? set({ tab: 'routes', routeSub: null }) : setPickerOpen(true))}
           >
             <div className="flex items-center gap-3">
               {/* 左：航线信息 */}
               <div className="flex-1 min-w-0">
-                {route ? (
+                {noRoutes ? (
+                  <>
+                    <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>本机还没有航线</div>
+                    <div className="mt-1 leading-[1.5]" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                      连接无人机后，从无人机同步已录制的航线
+                    </div>
+                  </>
+                ) : route ? (
                   <>
                     <div className="mono" style={{ fontSize: 9.5, letterSpacing: '.06em', color: 'var(--brand-text)' }}>
                       {route.id}
@@ -222,8 +328,8 @@ export function Home() {
                   color: 'var(--brand-subtle-text)',
                 }}
               >
-                <IconSwitch size={15} />
-                <span style={{ fontSize: 11, fontWeight: 500 }}>更换航线</span>
+                {noRoutes ? <IconRoute size={15} /> : <IconSwitch size={15} />}
+                <span style={{ fontSize: 11, fontWeight: 500 }}>{noRoutes ? '去同步' : '更换航线'}</span>
               </div>
             </div>
           </div>

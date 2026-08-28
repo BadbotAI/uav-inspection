@@ -6,7 +6,7 @@ import { useStore } from '../store';
 import { api } from '../api';
 import { Card } from '../components/Card';
 import { Pill } from '../components/Pill';
-import { IconMore, IconArrowDown, IconPin } from '../components/Icons';
+import { IconMore, IconArrowDown, IconPin, IconDoc } from '../components/Icons';
 import { EmptyState } from '../components/Feedback';
 import { Dialog } from '../components/BottomSheet';
 import {
@@ -203,7 +203,9 @@ export function TaskList() {
       <div className="mt-3.5">
         {tasks.length === 0 ? (
           <EmptyState
+            icon={<IconDoc size={20} />}
             text="还没有巡检记录"
+            sub="完成一次巡检后，体积结果、盘点明细与报告会保存在这里"
             actionText="去发起巡检"
             onAction={() => set({ tab: 'home' })}
           />

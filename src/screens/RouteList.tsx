@@ -6,7 +6,7 @@ import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Skeleton, EmptyState } from '../components/Feedback';
 import { BottomSheet } from '../components/BottomSheet';
-import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconArrowDown, IconChevronDown, IconPin } from '../components/Icons';
+import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconArrowDown, IconChevronDown, IconPin, IconRoute } from '../components/Icons';
 import { Viewport } from '../components/Viewport';
 import { RouteDelete } from './RouteDelete';
 import { fmtRelDay, daysAgo } from '../constants';
@@ -15,7 +15,8 @@ import type { Route } from '../types';
 export function RouteList() {
   const routes = useStore(s => s.routes);
   const scenes = useStore(s => s.scenes);
-  const lastSyncAt = useStore(s => s.lastSyncAt);
+  const dataLoaded = useStore(s => s.dataLoaded);
+  const device = useStore(s => s.device);
   const set = useStore(s => s.set);
   const showToast = useStore(s => s.showToast);
   const [syncing, setSyncing] = useState(false);
@@ -29,7 +30,9 @@ export function RouteList() {
   const [mapScene, setMapScene] = useState<string | null>(null);
   const [mapRouteId, setMapRouteId] = useState<string | null>(null);
   const [mapPickOpen, setMapPickOpen] = useState(false);
-  const loading = routes.length === 0 && lastSyncAt === null;
+  // 加载中 = 本机数据尚未读完；读完仍为空才是真正的空态（冷启动）
+  const loading = !dataLoaded;
+  const connected = !!device?.connected;
 
   const cmp = (a: Route, b: Route): number => {
     if (sortKey === 'all' || sortKey === 'created') return b.recordedAt.localeCompare(a.recordedAt);
@@ -55,11 +58,18 @@ export function RouteList() {
 
   const doSync = async () => {
     if (syncing) return;
+    // 航线来自无人机：未连接时无从同步，引导先去连接
+    if (!connected) {
+      showToast('未连接无人机，请先连接设备');
+      set({ tab: 'device', deviceSub: null });
+      return;
+    }
     setSyncing(true);
     try {
-      const { routes: rs, newCount, lastSyncAt: t } = await api.syncRoutes();
-      set({ routes: rs, lastSyncAt: t });
-      if (newCount > 0) set({ routeSub: { view: 'receive' } });
+      const { routes: rs, scenes: scs, newCount, lastSyncAt: t } = await api.syncRoutes();
+      set({ routes: rs, scenes: scs, lastSyncAt: t });
+      if (newCount === 1) set({ routeSub: { view: 'receive' } });
+      else if (newCount > 1) showToast(`已同步 ${newCount} 条航线`);   // 冷启动首次同步：整批拉取
       else showToast('已是最新，无新航线');
     } finally {
       setSyncing(false);
@@ -235,7 +245,17 @@ export function RouteList() {
           onScroll={e => setScrolled((e.target as HTMLElement).scrollTop > 4)}
         >
         {loading ? <Skeleton rows={3} /> : routes.length === 0 ? (
-          <EmptyState text="本机还没有航线" actionText="从无人机同步" onAction={doSync} />
+          // 冷启动空态：说明航线从哪来，主动作随设备连接状态切换
+          <EmptyState
+            icon={<IconRoute size={20} />}
+            text="本机还没有航线"
+            sub={connected
+              ? '航线由无人机录制，同步后即可在本机选择执行'
+              : '航线由无人机录制。连接无人机后，从无人机同步到本机'}
+            actionText={connected ? '从无人机同步' : '连接无人机'}
+            onAction={connected ? doSync : () => set({ tab: 'device', deviceSub: null })}
+            primary
+          />
         ) : shown.length === 0 ? (
           <EmptyState text={`没有匹配「${query.trim()}」的航线`} actionText="清空搜索" onAction={() => setQuery('')} />
         ) : sortKey !== 'all' ? (

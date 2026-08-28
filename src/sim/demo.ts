@@ -1,5 +1,6 @@
 // DEMO 控制台（不属于产品）：投标演示时跳转任意状态、触发停障、调速
 import { useStore, initialMission } from '../store';
+import { api } from '../api';
 import {
   demoJumpToFlying, demoJumpToProcessing, triggerObstacle, triggerFault,
   triggerRcOverride, startPreflight,
@@ -98,6 +99,19 @@ export const demoItems: DemoItem[] = [
       const cur = useStore.getState().speedMult;
       const next = cur === 1 ? 8 : cur === 8 ? 24 : 1;
       useStore.setState({ speedMult: next });
+    },
+  },
+  {
+    // 冷启动态：首次安装，无设备、无航线、无巡检数据；连接设备 → 同步航线后逐步回到正常态
+    label: '冷启动态',
+    run: () => {
+      ensureLoggedIn();
+      api.enterCold();
+      useStore.setState({
+        device: null, routes: [], scenes: [], tasks: [], lastSyncAt: null, dataLoaded: true,
+        selectedRouteId: null, tab: 'home', routeSub: null, resultSub: null, deviceSub: null,
+        doneEntry: null, vpFull: false, landscape: false, mission: { ...initialMission },
+      });
     },
   },
   {

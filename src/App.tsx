@@ -92,7 +92,7 @@ export default function App() {
   useEffect(() => {
     void api.getDevice().then(d => set({ device: d }));
     void api.getScenes().then(scenes => set({ scenes }));
-    void api.getRoutes().then(({ routes, lastSyncAt }) => set({ routes, lastSyncAt }));
+    void api.getRoutes().then(({ routes, lastSyncAt }) => set({ routes, lastSyncAt, dataLoaded: true }));
     void api.getTasks().then(tasks => set({ tasks }));
   }, [set]);
 

@@ -85,6 +85,7 @@ interface AppState {
   scenes: Scene[];
   routes: Route[];
   lastSyncAt: string | null;
+  dataLoaded: boolean;              // 本机数据已读完（区分「加载中」与「冷启动确实没有数据」）
   tasks: Task[];
   selectedRouteId: string | null;
   density: number;
@@ -121,6 +122,7 @@ export const useStore = create<AppState>((set, get) => ({
   scenes: [],
   routes: [],
   lastSyncAt: null,
+  dataLoaded: false,
   tasks: [],
   selectedRouteId: 'R-03',
   density: DEFAULT_BULK_DENSITY,

@@ -13,7 +13,7 @@ export async function login(account: string, password: string): Promise<void> {
   useStore.setState({
     loggedIn: true, account: name, lastAccount: name,
     loginAt: new Date().toISOString(),
-    device, scenes, routes, lastSyncAt, tasks,
+    device, scenes, routes, lastSyncAt, tasks, dataLoaded: true,
     tab: 'home', routeSub: null, resultSub: null, deviceSub: null,
   });
 }

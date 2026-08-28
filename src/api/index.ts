@@ -8,14 +8,34 @@ import { TASKS } from '../mock/tasks';
 const delay = (ms?: number) =>
   new Promise<void>(r => setTimeout(r, ms ?? 200 + Math.random() * 400));
 
+// 冷启动态：首次安装、从未连接过无人机、本机没有任何航线 / 场景 / 巡检数据
+// 由 ?cold=1 或 DEMO 控制台进入；连接设备 → 同步航线后逐步回到正常态
+let cold = new URLSearchParams(window.location.search).get('cold') === '1';
+
 // 内存态（约束 C10：不使用 localStorage / sessionStorage）
-let routes: Route[] = ROUTES.map(r => ({ ...r }));
-let tasks: Task[] = TASKS.map(t => ({ ...t, stacks: t.stacks.map(s => ({ ...s })) }));
-let device: DeviceState = { ...DEVICE };
+let routes: Route[] = cold ? [] : ROUTES.map(r => ({ ...r }));
+let scenes: Scene[] = cold ? [] : SCENES.map(s => ({ ...s }));
+let tasks: Task[] = cold ? [] : TASKS.map(t => ({ ...t, stacks: t.stacks.map(s => ({ ...s })) }));
+let device: DeviceState | null = cold ? null : { ...DEVICE };
 let newRouteDelivered = false;
-let lastSyncAt = '2026-07-24T10:15:00';
+let lastSyncAt: string | null = cold ? null : '2026-07-24T10:15:00';
 
 export const api = {
+  isCold(): boolean { return cold; },
+
+  // DEMO：切入冷启动态（清空本机数据、解除设备绑定）
+  enterCold(): void {
+    cold = true;
+    routes = []; scenes = []; tasks = []; device = null;
+    newRouteDelivered = false; lastSyncAt = null;
+  },
+
+  // 连接设备：按设备唯一标识绑定并建立局域网连接（冷启动态下首次绑定也走这里）
+  async connectDevice(d: Pick<DeviceState, 'id' | 'batteryPct' | 'storageFreeGb' | 'locationDesc' | 'sensorsOk'>): Promise<DeviceState> {
+    await delay(300);
+    device = { ...DEVICE, ...d, connected: true, charging: false };
+    return { ...device };
+  },
   async login(account: string, password: string): Promise<{ token: string }> {
     await delay();
     if (!account.trim() || !password) throw new Error('账号或密码错误');
@@ -25,24 +45,25 @@ export const api = {
   // 退出登录：注销会话令牌，并断开与当前设备的连接（设备侧遥测订阅一并释放）
   async logout(): Promise<void> {
     await delay(400);
-    device = { ...device, connected: false };
+    if (device) device = { ...device, connected: false };
   },
 
-  // 重新登录后恢复设备连接（局域网内按设备唯一标识重连）
-  async reconnectDevice(): Promise<DeviceState> {
+  // 重新登录后恢复设备连接（局域网内按设备唯一标识重连）；从未绑定过设备则返回 null
+  async reconnectDevice(): Promise<DeviceState | null> {
     await delay(300);
+    if (!device) return null;
     device = { ...device, connected: true };
     return { ...device };
   },
 
-  async getDevice(): Promise<DeviceState> {
+  async getDevice(): Promise<DeviceState | null> {
     await delay();
-    return { ...device };
+    return device ? { ...device } : null;
   },
 
   async getScenes(): Promise<Scene[]> {
     await delay();
-    return SCENES.map(s => ({ ...s }));
+    return scenes.map(s => ({ ...s }));
   },
 
   // 导入航线 JSON 文件（协议与飞机共享文件夹一致）
@@ -59,19 +80,25 @@ export const api = {
     tasks = tasks.filter(t => t.id !== id);
   },
 
-  async syncRoutes(): Promise<{ routes: Route[]; newCount: number; lastSyncAt: string }> {
+  // 从无人机同步航线：冷启动态下首次同步把无人机上已录制的航线与场景全部拉到本机；
+  // 之后每次同步只增量接收新航线
+  async syncRoutes(): Promise<{ routes: Route[]; scenes: Scene[]; newCount: number; lastSyncAt: string }> {
     await delay(1500);
     let newCount = 0;
-    if (!newRouteDelivered) {
+    if (cold && routes.length === 0) {
+      routes = ROUTES.map(r => ({ ...r }));
+      scenes = SCENES.map(s => ({ ...s }));
+      newCount = routes.length;
+    } else if (!newRouteDelivered) {
       routes = [{ ...NEW_ROUTE }, ...routes];
       newRouteDelivered = true;
       newCount = 1;
     }
-    lastSyncAt = '2026-07-27T10:20:00';
-    return { routes: routes.map(r => ({ ...r })), newCount, lastSyncAt };
+    lastSyncAt = cold ? new Date().toISOString() : '2026-07-27T10:20:00';
+    return { routes: routes.map(r => ({ ...r })), scenes: scenes.map(s => ({ ...s })), newCount, lastSyncAt };
   },
 
-  async getRoutes(): Promise<{ routes: Route[]; lastSyncAt: string }> {
+  async getRoutes(): Promise<{ routes: Route[]; lastSyncAt: string | null }> {
     await delay();
     return { routes: routes.map(r => ({ ...r })), lastSyncAt };
   },

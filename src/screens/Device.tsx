@@ -1,8 +1,10 @@
 // D-00 设备：列出多台无人机，同时仅连接一台（类 iPhone 蓝牙逻辑）
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from '../store';
+import { api } from '../api';
 import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
+import { Button } from '../components/Button';
 import { Dialog } from '../components/BottomSheet';
 import { IconDrone, IconChevronRight, IconDoc, IconSync, IconPin } from '../components/Icons';
 
@@ -48,11 +50,16 @@ export function Device() {
     });
     prevTops.current = tops;
   });
-  const [others, setOthers] = useState<OtherDevice[]>([
+  // 冷启动（从未绑定设备）：已知设备为空，所有设备都要先「发现」
+  const [others, setOthers] = useState<OtherDevice[]>(() => device ? [
     { id: 'UAV-B12', model: MODEL_NAME, batteryPct: 64, storageFreeGb: 55.8, locationDesc: '二号仓 平房仓', sensorsOk: true },
-  ]);
+  ] : []);
   // 待发现设备池：点击「发现设备」逐台发现
   const undiscovered = useRef<OtherDevice[]>([
+    ...(device ? [] : [
+      { id: 'UAV-A31C', model: MODEL_NAME, batteryPct: 82, storageFreeGb: 41.2, locationDesc: '一号仓 A区', sensorsOk: true },
+      { id: 'UAV-B12', model: MODEL_NAME, batteryPct: 64, storageFreeGb: 55.8, locationDesc: '二号仓 平房仓', sensorsOk: true },
+    ]),
     { id: 'UAV-C08', model: MODEL_NAME, batteryPct: 91, storageFreeGb: 60.2, locationDesc: '三号仓 通廊仓', sensorsOk: true },
     { id: 'UAV-D02', model: MODEL_NAME, batteryPct: 37, storageFreeGb: 22.4, locationDesc: '四号仓 方仓', sensorsOk: false },
   ]);
@@ -79,10 +86,20 @@ export function Device() {
 
   // 同时仅连接一台：先进入连接中过渡态，随后切换当前设备并置顶
   const connectTo = (d: OtherDevice) => {
-    if (!device || connectingId) return;
+    if (connectingId) return;
     // 任务进行中禁止切换：避免执行中的任务失去监控归属
     if (missionBusy) { setBlockOpen(true); return; }
     setConnectingId(d.id);
+    // 首次绑定（冷启动）：无当前设备可断开，直接建立连接
+    if (!device) {
+      void api.connectDevice(d).then(dev => {
+        set({ device: dev });
+        setOthers(list => list.filter(x => x.id !== d.id));
+        setConnectingId(null);
+        showToast(`已连接 ${d.id}`);
+      });
+      return;
+    }
     setTimeout(() => {
       const prev: OtherDevice = {
         id: device.id, model: MODEL_NAME,
@@ -123,7 +140,39 @@ export function Device() {
           </button>
         </div>
         <div className="flex flex-col gap-2">
-        <div key={device?.id ?? 'mine'} ref={el => { if (device) cardRefs.current[device.id] = el; }}>
+        {/* 冷启动：尚未绑定任何设备 */}
+        {!device && (
+          <Card style={{ padding: '18px 16px' }}>
+            <div className="flex flex-col items-center text-center">
+              <span
+                className="flex items-center justify-center"
+                style={{ width: 48, height: 48, borderRadius: 999, background: 'var(--fill-quiet)', color: 'var(--text-tertiary)' }}
+              >
+                <IconDrone size={22} />
+              </span>
+              <div className="mt-3" style={{ fontSize: 13.5, fontWeight: 500 }}>
+                {others.length === 0 ? '尚未连接无人机' : '选择一台设备连接'}
+              </div>
+              <div className="mt-1 leading-[1.6]" style={{ fontSize: 11.5, color: 'var(--text-tertiary)', maxWidth: 250 }}>
+                {others.length === 0
+                  ? '请确认无人机已开机，且与手机接入同一局域网，然后发现设备'
+                  : '已发现下列设备，连接后即可同步航线并执行巡检'}
+              </div>
+              {others.length === 0 && (
+                <div className="mt-4" style={{ width: 160 }}>
+                  <Button small onClick={scan} disabled={scanning}>
+                    <span className="inline-flex items-center gap-1.5">
+                      <IconSync size={13} spinning={scanning} />
+                      {scanning ? '检测中' : '发现设备'}
+                    </span>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+        {device && (
+        <div key={device.id} ref={el => { cardRefs.current[device.id] = el; }}>
         <Card>
           <div className="flex items-center gap-3">
             {/* 左：信息 + 遥测标签 */}
@@ -176,6 +225,7 @@ export function Device() {
           </div>
         </Card>
         </div>
+        )}
           {others.map(d => (
             <div
               key={d.id}
@@ -234,7 +284,9 @@ export function Device() {
         </div>
 
         <div className="mt-3 leading-[1.6]" style={{ fontSize: 11.5, color: 'var(--text-tertiary)' }}>
-          系统持续接入同一局域网内 {1 + others.length} 台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台，连接其他设备时当前设备将断开。
+          {(device ? 1 : 0) + others.length === 0
+            ? '发现设备后，系统将持续接入同一局域网内各台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台。'
+            : `系统持续接入同一局域网内 ${(device ? 1 : 0) + others.length} 台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台，连接其他设备时当前设备将断开。`}
         </div>
 
         {/* 运行日志：设备侧记录，随设备页 */}

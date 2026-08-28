@@ -15,15 +15,36 @@ export function Skeleton({ rows = 3 }: { rows?: number }) {
   );
 }
 
-export function EmptyState({ text, actionText, onAction }: {
-  text: string; actionText?: string; onAction?: () => void;
+export function EmptyState({ text, sub, icon, actionText, onAction, primary }: {
+  text: string;
+  sub?: string;             // 一句话解释为什么是空的 / 怎么才会有内容
+  icon?: React.ReactNode;   // 可选的线性图标，置于文案上方
+  actionText?: string;
+  onAction?: () => void;
+  primary?: boolean;        // 冷启动态下主路径动作用主按钮
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 py-10 px-6">
-      <div className="text-[12.5px]" style={{ color: 'var(--txt2)' }}>{text}</div>
+    <div className="flex flex-col items-center py-10 px-6">
+      {icon && (
+        <span
+          className="flex items-center justify-center mb-3"
+          style={{
+            width: 48, height: 48, borderRadius: 999,
+            background: 'var(--fill-quiet)', color: 'var(--text-tertiary)',
+          }}
+        >
+          {icon}
+        </span>
+      )}
+      <div className="text-[13px]" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{text}</div>
+      {sub && (
+        <div className="text-center leading-[1.6] mt-1" style={{ fontSize: 11.5, color: 'var(--text-tertiary)', maxWidth: 240 }}>
+          {sub}
+        </div>
+      )}
       {actionText && (
-        <div style={{ width: 160 }}>
-          <Button variant="secondary" small onClick={onAction}>{actionText}</Button>
+        <div style={{ width: 160 }} className="mt-4">
+          <Button variant={primary ? 'primary' : 'secondary'} small onClick={onAction}>{actionText}</Button>
         </div>
       )}
     </div>
