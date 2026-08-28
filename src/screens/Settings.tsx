@@ -159,6 +159,7 @@ export function Settings() {
           ['应用版本', '1.0.0'],
           ['适配系统', 'Android 13 及以上'],
           ['运行网络', '局域网直连，支持离线运行'],
+          ['网页端', 'badbotai.github.io/uav-inspection-web'],
         ].map(([k, v], i) => (
           <div key={k} className="flex items-center justify-between" style={rowStyle(i)}>
             <span style={{ fontSize: 13 }}>{k}</span>

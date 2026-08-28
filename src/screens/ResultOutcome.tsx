@@ -5,6 +5,10 @@ import { useStore } from '../store';
 import { Pill } from '../components/Pill';
 import { IconDoc, IconCopy, IconChevronRight } from '../components/Icons';
 import { CONF_TEXT, CONF_TONE } from './ResultShared';
+import { syncCodeOf } from '../sync';
+
+// 网页端数据中心地址：手机端复制同步码后，在网页端接入即可归档、检索、下载
+const WEB_HOST = 'badbotai.github.io/uav-inspection-web';
 
 // 明细异常情况文案：状态 + 原因/建议
 const ISSUE_TEXT = {
@@ -86,6 +90,13 @@ export function ResultOutcome({
   const copyPath = async () => {
     try { await navigator.clipboard.writeText(task.cloudSharePath); } catch { /* 剪贴板不可用时仍提示 */ }
     showToast('路径已复制');
+  };
+
+  // 同步码：每次巡检一个，网页端凭此拉取该次任务的过程数据、成果与报告（有效期 7 天）
+  const syncCode = syncCodeOf(task.id);
+  const copyCode = async () => {
+    try { await navigator.clipboard.writeText(syncCode); } catch { /* 剪贴板不可用时仍提示 */ }
+    showToast('同步码已复制，到网页端接入即可查看');
   };
 
   return (
@@ -283,6 +294,39 @@ export function ResultOutcome({
           >
             <IconCopy size={12} /> 复制路径
           </button>
+        </div>
+        {/* 同步到网页端：复制同步码 → 网页端接入 → 归档 / 检索 / 下载数据包 */}
+        <div style={{ padding: '11px 14px', borderTop: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div style={{ fontSize: 12.5, fontWeight: 500 }}>同步到网页端</div>
+              <div className="flex items-center gap-2 mt-1">
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: 13, letterSpacing: '.06em', padding: '3px 8px', borderRadius: 6,
+                    background: 'var(--brand-subtle-bg)', color: 'var(--brand-subtle-text)',
+                  }}
+                >
+                  {syncCode}
+                </span>
+                <span style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>有效期 7 天</span>
+              </div>
+            </div>
+            <button
+              className="flex items-center gap-1.5 shrink-0 pressable"
+              style={{
+                fontSize: 12, padding: '7px 12px', borderRadius: 999,
+                background: 'var(--brand)', border: 'none', color: '#FFFFFF', cursor: 'pointer',
+              }}
+              onClick={copyCode}
+            >
+              <IconCopy size={12} /> 复制同步码
+            </button>
+          </div>
+          <div className="mono mt-2 leading-[1.5]" style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>
+            在 {WEB_HOST} 输入同步码，可查看飞行过程与三维成果、在线预览报告、下载完整数据包
+          </div>
         </div>
       </div>
 
