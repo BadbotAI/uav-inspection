@@ -5,9 +5,12 @@ import { useStore } from '../store';
 import { Viewport } from '../components/Viewport';
 import { Button } from '../components/Button';
 import { FloatBack } from '../components/SubHeader';
-import { IconChevronDown, IconDrone, IconCameraFill } from '../components/Icons';
+import { IconChevronDown, IconDrone, IconCameraFill, IconRotate, IconPortrait } from '../components/Icons';
 import { startReturn, RETURN_ETA_S } from '../sim/flight';
 import { fmtDuration, BATTERY_LOW_PCT } from '../constants';
+
+// 横屏时右侧仪表栏宽度；三维画面占其余全部宽度
+const PANEL_W = 272;
 
 // 返航需长按 1 秒触发，长按时按钮内显示进度填充
 function LongPressReturn({ disabled, onFired }: { disabled?: boolean; onFired?: () => void }) {
@@ -64,9 +67,14 @@ export function Execute() {
   const routes = useStore(s => s.routes);
   const patchMission = useStore(s => s.patchMission);
   const vpFull = useStore(s => s.vpFull);
+  const landscape = useStore(s => s.landscape);
+  const set = useStore(s => s.set);
   const route = routes.find(r => r.id === mission.routeId);
   const [obSheet, setObSheet] = useState(false);
   const [returnFlash, setReturnFlash] = useState(false);
+
+  // 离开执行主视图（最小化 / 进入处理 / 异常）时整机复位竖屏
+  useEffect(() => () => { useStore.setState({ landscape: false }); }, []);
 
   // 长按返航确认后的过渡反馈
   const fireReturnFlash = () => {
@@ -89,11 +97,34 @@ export function Execute() {
   const stateColor = isHover ? 'var(--warning)' : isReturning ? 'var(--text-secondary)' : 'var(--brand)';
 
   return (
-    <div className="absolute inset-0 z-20 flex flex-col" style={{ background: 'var(--ink)' }}>
-      {/* 三维区 44% + 画中画（实时画面），全屏时撑满 */}
-      <div style={{ height: vpFull ? '100%' : '44%', transition: 'height .25s ease' }} className="shrink-0 relative">
+    <div
+      className="absolute inset-0 z-20 flex"
+      style={{ background: 'var(--ink)', flexDirection: landscape ? 'row' : 'column' }}
+    >
+      {/* 三维区：竖屏占上方 44%；横屏占右栏以外全部宽度；全屏时撑满 */}
+      <div
+        className="shrink-0 relative"
+        style={landscape
+          ? { flex: 1, minWidth: 0, height: '100%' }
+          : { height: vpFull ? '100%' : '44%', transition: 'height .25s ease' }}
+      >
         {/* 收起执行态：任务继续，可回其他界面，顶部回归条随时返回监控 */}
         <FloatBack icon={<IconChevronDown size={15} />} onBack={() => patchMission({ minimized: true })} />
+        {/* 横竖屏切换：大屏展示时三维画面铺满、仪表靠右 */}
+        <button
+          className="absolute flex items-center justify-center"
+          style={{
+            top: 12, left: 44, zIndex: 10,
+            width: 28, height: 28, borderRadius: 999,
+            background: 'rgba(255,255,255,.85)', border: '1px solid var(--border-default)',
+            color: 'var(--text-primary)', cursor: 'pointer',
+            backdropFilter: 'blur(6px)', boxShadow: 'var(--shadow-card)',
+          }}
+          onClick={() => set({ landscape: !landscape })}
+          aria-label={landscape ? '切回竖屏' : '横屏展示'}
+        >
+          {landscape ? <IconPortrait size={14} /> : <IconRotate size={14} />}
+        </button>
         <Viewport
           waypointCount={route.waypointCount}
           altitudeM={route.altitudeM}
@@ -185,11 +216,24 @@ export function Execute() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ padding: 14, display: vpFull ? 'none' : undefined }}>
+      {/* 仪表区：竖屏在三维区下方；横屏收为右侧固定宽度栏 */}
+      <div
+        className="overflow-y-auto flex flex-col"
+        style={{
+          display: vpFull ? 'none' : undefined,
+          ...(landscape
+            ? {
+              width: PANEL_W, flexShrink: 0, height: '100%', padding: 12,
+              borderLeft: '1px solid var(--border-subtle)', background: 'var(--bg-base)',
+            }
+            : { flex: 1, padding: 14 }),
+        }}
+      >
         {/* 仪表面板：状态 / 进度 / 遥测 / 姿态一体（浅色卡片） */}
         <div
+          className="shrink-0"
           style={{
-            borderRadius: 'var(--card-radius)', padding: '12px 14px',
+            borderRadius: 'var(--card-radius)', padding: landscape ? '10px 12px' : '12px 14px',
             background: 'var(--surface-1)',
             border: '1px solid var(--card-stroke)',
             boxShadow: 'var(--shadow-card)',
@@ -219,15 +263,15 @@ export function Execute() {
             </div>
           )}
 
-          {/* 遥测：电量为第一信息（唯一触发强制返航的量），带剩余可飞估算 */}
-          <div className="flex items-stretch mt-3" style={{ gap: 14 }}>
-            <div className="shrink-0" style={{ minWidth: 108 }}>
+          {/* 遥测：电量为第一信息（唯一触发强制返航的量），带剩余可飞估算；横屏栏窄时上下排布 */}
+          <div className={`flex mt-3 ${landscape ? 'flex-col' : 'items-stretch'}`} style={{ gap: landscape ? 10 : 14 }}>
+            <div className="shrink-0" style={{ minWidth: landscape ? undefined : 108 }}>
               <div className="dlabel">电量</div>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span
                   className="mono"
                   style={{
-                    fontSize: 27, lineHeight: 1.05, fontWeight: 500,
+                    fontSize: landscape ? 24 : 27, lineHeight: 1.05, fontWeight: 500,
                     color: mission.batteryPct <= BATTERY_LOW_PCT ? 'var(--danger)' : 'var(--text-primary)',
                   }}
                 >
@@ -241,7 +285,12 @@ export function Execute() {
             </div>
             <div
               className="flex-1 grid"
-              style={{ gridTemplateColumns: 'repeat(3, 1fr)', borderLeft: '1px solid var(--border-subtle)' }}
+              style={{
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                ...(landscape
+                  ? { borderTop: '1px solid var(--border-subtle)', paddingTop: 8 }
+                  : { borderLeft: '1px solid var(--border-subtle)' }),
+              }}
             >
               {[
                 { label: '已飞', value: fmtDuration(mission.elapsedSec) },
@@ -281,12 +330,13 @@ export function Execute() {
           </div>
         )}
 
-        {/* 飞行日志 */}
-        <div className="dlabel mt-3 mb-1.5" style={{ fontSize: 11 }}>飞行日志</div>
+        {/* 飞行日志：横屏时吃掉剩余高度 */}
+        <div className="dlabel mt-3 mb-1.5 shrink-0" style={{ fontSize: 11 }}>飞行日志</div>
         <div
           className="overflow-y-auto"
           style={{
-            height: 88, padding: '8px 12px', borderRadius: 8,
+            ...(landscape ? { flex: 1, minHeight: 56 } : { height: 88, flexShrink: 0 }),
+            padding: '8px 12px', borderRadius: 8,
             background: 'var(--surface-sunken)', border: '1px solid var(--border-subtle)',
           }}
         >
@@ -303,7 +353,7 @@ export function Execute() {
 
         {/* 操作区：执行中唯一指令 = 返航（长按确认） */}
         {!isReturning ? (
-          <div className="flex mt-3.5" style={{ maxWidth: 190, margin: '14px auto 0' }}>
+          <div className="flex shrink-0" style={{ maxWidth: 190, width: '100%', margin: `${landscape ? 12 : 14}px auto 0` }}>
             <LongPressReturn disabled={obstacle} onFired={fireReturnFlash} />
           </div>
         ) : (
@@ -347,7 +397,8 @@ export function Execute() {
         const remain = Math.max(0, Math.ceil(mission.hoverCountdown));
         const R = 15, C = 2 * Math.PI * R;
         return (
-          <div className="absolute inset-x-0 bottom-0 z-40">
+          // 横屏时弹层只覆盖三维画面区，右侧仪表栏保持可读
+          <div className="absolute bottom-0 z-40" style={{ left: 0, right: landscape && !vpFull ? PANEL_W : 0 }}>
             <div
               className="sheet-in"
               style={{

@@ -50,10 +50,11 @@ function TabContent() {
     return <ResultDetail task={task} view={resultSub.view} />;
   }
 
+  if (tab === 'settings') return <Settings />;
+
   // device
-  if (!deviceSub) return <Device />;
   if (deviceSub === 'logs') return <Logs />;
-  return <Settings />;
+  return <Device />;
 }
 
 function ExecOverlay() {
@@ -87,7 +88,7 @@ export default function App() {
   const set = useStore(s => s.set);
   const handleBack = useStore(s => s.handleBack);
 
-  // 初始数据加载（经 api 层，mock 带延迟）
+  // 启动预取（经 api 层，mock 带延迟）；正式登录时由 sim/session 再拉取一次最新数据
   useEffect(() => {
     void api.getDevice().then(d => set({ device: d }));
     void api.getScenes().then(scenes => set({ scenes }));

@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Dialog } from '../components/BottomSheet';
-import { IconDrone, IconChevronRight, IconSliders, IconSync, IconPin } from '../components/Icons';
+import { IconDrone, IconChevronRight, IconDoc, IconSync, IconPin } from '../components/Icons';
 
 interface OtherDevice {
   id: string;
@@ -237,7 +237,7 @@ export function Device() {
           系统持续接入同一局域网内 {1 + others.length} 台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台，连接其他设备时当前设备将断开。
         </div>
 
-        {/* 设置 */}
+        {/* 运行日志：设备侧记录，随设备页 */}
         <div
           className="mt-4"
           style={{
@@ -255,10 +255,10 @@ export function Device() {
               background: 'transparent',
               color: 'var(--text-primary)', fontSize: 13,
             }}
-            onClick={() => set({ deviceSub: 'settings' })}
+            onClick={() => set({ deviceSub: 'logs' })}
           >
-            <span style={{ color: 'var(--text-tertiary)', display: 'inline-flex' }}><IconSliders size={14} /></span>
-            <span className="flex-1 text-left">设置</span>
+            <span style={{ color: 'var(--text-tertiary)', display: 'inline-flex' }}><IconDoc size={14} /></span>
+            <span className="flex-1 text-left">运行日志</span>
             <span style={{ color: 'var(--text-placeholder)' }}><IconChevronRight size={12} /></span>
           </button>
         </div>

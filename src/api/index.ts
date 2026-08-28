@@ -22,6 +22,19 @@ export const api = {
     return { token: 'mock-token' };
   },
 
+  // 退出登录：注销会话令牌，并断开与当前设备的连接（设备侧遥测订阅一并释放）
+  async logout(): Promise<void> {
+    await delay(400);
+    device = { ...device, connected: false };
+  },
+
+  // 重新登录后恢复设备连接（局域网内按设备唯一标识重连）
+  async reconnectDevice(): Promise<DeviceState> {
+    await delay(300);
+    device = { ...device, connected: true };
+    return { ...device };
+  },
+
   async getDevice(): Promise<DeviceState> {
     await delay();
     return { ...device };

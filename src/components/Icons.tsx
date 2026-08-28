@@ -202,6 +202,32 @@ export const IconWifi = ({ size }: { size?: number }) => (
   </svg>
 );
 
+// 横屏：横向机身 + 顺时针旋转弧
+export const IconRotate = ({ size }: { size?: number }) => (
+  <svg {...S({ size })}>
+    <rect x="1.8" y="5.2" width="9.6" height="6.2" rx="1.4" />
+    <path d="M13.4 9.4V6.6a2 2 0 0 0-2-2h-.6" />
+    <path d="M12.1 3.3 10.8 4.6l1.3 1.3" />
+  </svg>
+);
+
+// 竖屏：纵向机身 + 逆时针旋转弧
+export const IconPortrait = ({ size }: { size?: number }) => (
+  <svg {...S({ size })}>
+    <rect x="5.2" y="1.8" width="6.2" height="9.6" rx="1.4" />
+    <path d="M9.4 13.4H6.6a2 2 0 0 1-2-2v-.6" />
+    <path d="M3.3 12.1 4.6 10.8l1.3 1.3" />
+  </svg>
+);
+
+// 退出：门框 + 向外箭头
+export const IconLogout = ({ size }: { size?: number }) => (
+  <svg {...S({ size })}>
+    <path d="M6.4 2.2H3.4a1.2 1.2 0 0 0-1.2 1.2v9.2a1.2 1.2 0 0 0 1.2 1.2h3" />
+    <path d="M10 5.2 12.8 8 10 10.8M6.2 8h6.6" />
+  </svg>
+);
+
 // 滑杆设置：三条轨道 + 滑钮
 export const IconSliders = ({ size }: { size?: number }) => (
   <svg width={size ?? 16} height={size ?? 16} viewBox="0 0 16 16" fill="none"

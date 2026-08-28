@@ -4,7 +4,7 @@ import type {
 } from './types';
 import { DEFAULT_BULK_DENSITY } from './constants';
 
-export type Tab = 'home' | 'routes' | 'results' | 'device';
+export type Tab = 'home' | 'routes' | 'results' | 'device' | 'settings';
 export type ResultView = 'process' | 'result';
 
 export type RouteSub =
@@ -74,10 +74,12 @@ export const initialMission: Mission = {
 interface AppState {
   loggedIn: boolean;
   account: string;
+  loginAt: string | null;           // 本次登录时间（ISO），设置页账号区展示
+  lastAccount: string;              // 上次登录账号：退出后登录页回填，减少重复输入
   tab: Tab;
   routeSub: RouteSub;
   resultSub: { taskId: string; view: ResultView } | null;
-  deviceSub: 'settings' | 'logs' | null;
+  deviceSub: 'logs' | null;
 
   device: DeviceState | null;
   scenes: Scene[];
@@ -90,6 +92,7 @@ interface AppState {
   doneEntry: string | null;         // 任务进终态后弹一次的成果入口（taskId）
   backInterceptor: (() => boolean) | null;
   vpFull: boolean;                  // 三维视图全屏：画布撑满，下方信息收起
+  landscape: boolean;               // 执行态横屏：整机转为 800×390，三维画面占主区、仪表靠右
 
   mission: Mission;
   speedMult: 1 | 8 | 24;
@@ -107,6 +110,8 @@ let toastTimer: ReturnType<typeof setTimeout> | undefined;
 export const useStore = create<AppState>((set, get) => ({
   loggedIn: false,
   account: '',
+  loginAt: null,
+  lastAccount: '',
   tab: 'home',
   routeSub: null,
   resultSub: null,
@@ -123,6 +128,7 @@ export const useStore = create<AppState>((set, get) => ({
   doneEntry: null,
   backInterceptor: null,
   vpFull: false,
+  landscape: false,
 
   mission: { ...initialMission },
   speedMult: 8,
@@ -166,6 +172,8 @@ export const useStore = create<AppState>((set, get) => ({
         case 'LANDED':
         case 'PROCESSING':
         case 'PROCESS_FAIL':
+          // 横屏时先退回竖屏，再按一次才最小化
+          if (s.landscape) { set({ landscape: false }); return; }
           // 只做最小化，不结束任务，不弹确认
           set(st => ({ mission: { ...st.mission, minimized: true } }));
           return;

@@ -29,10 +29,16 @@ const ICONS: Record<Tab, React.ReactNode> = {
       <circle cx="3" cy="17" r="1.3" /><circle cx="17" cy="17" r="1.3" />
     </svg>
   ),
+  settings: (
+    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <circle cx="10" cy="10" r="2.6" />
+      <path d="M10 2.2v2.4M10 15.4v2.4M2.2 10h2.4M15.4 10h2.4M4.5 4.5l1.7 1.7M13.8 13.8l1.7 1.7M15.5 4.5l-1.7 1.7M6.2 13.8l-1.7 1.7" />
+    </svg>
+  ),
 };
 
 const LABELS: Record<Tab, string> = {
-  home: '巡检', routes: '航线', results: '数据', device: '设备',
+  home: '巡检', routes: '航线', results: '数据', device: '设备', settings: '设置',
 };
 
 export function TabBar() {

@@ -1,7 +1,7 @@
 // L-00 登录 —— 居中构图，大尺寸细线标识
 import { useState } from 'react';
-import { api } from '../api';
 import { useStore } from '../store';
+import { login } from '../sim/session';
 import { Button, CtaRow } from '../components/Button';
 
 // 品牌标识：雷达环 + 无人机十字，细线风格
@@ -29,8 +29,9 @@ function Mark() {
 }
 
 export function Login() {
-  const set = useStore(s => s.set);
-  const [account, setAccount] = useState('');
+  // 退出登录后回填上次账号，只需重输密码
+  const lastAccount = useStore(s => s.lastAccount);
+  const [account, setAccount] = useState(lastAccount);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -40,8 +41,7 @@ export function Login() {
     setBusy(true);
     setError('');
     try {
-      await api.login(account, password);
-      set({ loggedIn: true, account: account.trim() });
+      await login(account, password);
     } catch {
       setError('账号或密码错误');
       setPassword('');
@@ -81,6 +81,7 @@ export function Login() {
         />
         <input
           style={inputStyle} placeholder="密码" type="password" maxLength={64}
+          autoFocus={!!lastAccount}
           value={password} onChange={e => setPassword(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && submit()}
           onFocus={focus} onBlur={blur}
