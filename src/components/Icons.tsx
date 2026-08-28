@@ -202,21 +202,19 @@ export const IconWifi = ({ size }: { size?: number }) => (
   </svg>
 );
 
-// 横屏：横向机身 + 顺时针旋转弧
+// 横屏：横向手机机身，右侧一道 Home 条
 export const IconRotate = ({ size }: { size?: number }) => (
   <svg {...S({ size })}>
-    <rect x="1.8" y="5.2" width="9.6" height="6.2" rx="1.4" />
-    <path d="M13.4 9.4V6.6a2 2 0 0 0-2-2h-.6" />
-    <path d="M12.1 3.3 10.8 4.6l1.3 1.3" />
+    <rect x="1.5" y="4" width="13" height="8" rx="1.6" />
+    <path d="M12 6.4v3.2" />
   </svg>
 );
 
-// 竖屏：纵向机身 + 逆时针旋转弧
+// 竖屏：纵向手机机身，底部一道 Home 条
 export const IconPortrait = ({ size }: { size?: number }) => (
   <svg {...S({ size })}>
-    <rect x="5.2" y="1.8" width="6.2" height="9.6" rx="1.4" />
-    <path d="M9.4 13.4H6.6a2 2 0 0 1-2-2v-.6" />
-    <path d="M3.3 12.1 4.6 10.8l1.3 1.3" />
+    <rect x="4" y="1.5" width="8" height="13" rx="1.6" />
+    <path d="M6.4 12h3.2" />
   </svg>
 );
 
