@@ -216,19 +216,20 @@ export function Execute() {
         )}
       </div>
 
-      {/* 仪表区：竖屏在三维区下方；横屏收为右侧固定宽度栏 */}
+      {/* 仪表区：竖屏在三维区下方；横屏收为右侧固定宽度栏（返航按钮固定在栏底，不随内容滚动） */}
       <div
-        className="overflow-y-auto flex flex-col"
+        className="flex flex-col"
         style={{
           display: vpFull ? 'none' : undefined,
           ...(landscape
             ? {
-              width: PANEL_W, flexShrink: 0, height: '100%', padding: 12,
+              width: PANEL_W, flexShrink: 0, height: '100%',
               borderLeft: '1px solid var(--border-subtle)', background: 'var(--bg-base)',
             }
-            : { flex: 1, padding: 14 }),
+            : { flex: 1, minHeight: 0 }),
         }}
       >
+        <div className="flex-1 overflow-y-auto flex flex-col" style={{ padding: landscape ? '12px 12px 8px' : 14, minHeight: 0 }}>
         {/* 仪表面板：状态 / 进度 / 遥测 / 姿态一体（浅色卡片） */}
         <div
           className="shrink-0"
@@ -352,14 +353,22 @@ export function Execute() {
         </div>
 
         {/* 操作区：执行中唯一指令 = 返航（长按确认） */}
-        {!isReturning ? (
-          <div className="flex shrink-0" style={{ maxWidth: 190, width: '100%', margin: `${landscape ? 12 : 14}px auto 0` }}>
+        {/* 竖屏：返航按钮随内容排布 */}
+        {!landscape && (!isReturning ? (
+          <div className="flex shrink-0" style={{ maxWidth: 190, width: '100%', margin: '14px auto 0' }}>
             <LongPressReturn disabled={obstacle} onFired={fireReturnFlash} />
           </div>
         ) : (
           <div className="mt-3.5" />
-        )}
+        ))}
+        </div>
 
+        {/* 横屏：返航按钮固定在右栏底部，始终完整可见 */}
+        {landscape && !isReturning && (
+          <div className="shrink-0 flex" style={{ padding: '10px 12px 12px', borderTop: '1px solid var(--border-subtle)' }}>
+            <LongPressReturn disabled={obstacle} onFired={fireReturnFlash} />
+          </div>
+        )}
       </div>
 
       {/* 长按返航确认反馈 */}

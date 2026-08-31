@@ -1,5 +1,5 @@
 // H-00 待命首页
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { Button, CtaRow } from '../components/Button';
 import { Card } from '../components/Card';
@@ -15,8 +15,27 @@ import { fmtRelDay } from '../constants';
 import { DEVICE_MODEL } from '../mock/device';
 
 // 冷启动引导：三步进度，完成的打勾，未完成的可点跳到对应入口
+// 动效：当前步骤序号圈呼吸光圈提示可点；某步完成后回到首页时先变绿弹出对勾并闪一下底色，
+// 随后光圈自动移到下一步（完成闪烁期间下一步不抢焦点）
+let guidePrevDone: string | null = null;   // 跨页面切换记住上次完成态，用于识别「刚完成」的步骤
+
 function StartGuide({ steps }: { steps: { title: string; desc: string; done: boolean; onClick?: () => void }[] }) {
   const doneCount = steps.filter(s => s.done).length;
+  const doneKey = steps.map(s => (s.done ? '1' : '0')).join('');
+  const [justDone, setJustDone] = useState<number | null>(null);
+  useEffect(() => {
+    const prev = guidePrevDone;
+    guidePrevDone = doneKey;
+    if (prev && prev !== doneKey) {
+      const idx = steps.findIndex((s, i) => s.done && prev[i] === '0');
+      if (idx >= 0) {
+        setJustDone(idx);
+        const t = setTimeout(() => setJustDone(null), 1400);
+        return () => clearTimeout(t);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doneKey]);
   return (
     <Card style={{ padding: '12px 14px' }}>
       <div className="flex items-center justify-between">
@@ -25,13 +44,18 @@ function StartGuide({ steps }: { steps: { title: string; desc: string; done: boo
       </div>
       <div className="mt-2.5 flex flex-col">
         {steps.map((s, i) => {
-          const current = !s.done && steps.slice(0, i).every(p => p.done);
+          // 完成闪烁期间下一步暂不亮起，等闪烁结束光圈再移过去
+          const current = !s.done && steps.slice(0, i).every(p => p.done) && justDone === null;
+          const flashing = justDone === i;
           return (
             <button
               key={s.title}
               className={`flex items-start gap-2.5 text-left ${s.done ? '' : 'pressable'}`}
               style={{
-                padding: '8px 0', background: 'transparent', cursor: s.done ? 'default' : 'pointer',
+                padding: '8px 6px', margin: '0 -6px', borderRadius: 8,
+                background: flashing ? 'var(--success-bg)' : 'transparent',
+                transition: 'background .5s ease',
+                cursor: s.done ? 'default' : 'pointer',
                 borderTop: i > 0 ? '1px solid var(--border-subtle)' : 'none',
                 color: 'var(--text-primary)',
               }}
@@ -39,15 +63,16 @@ function StartGuide({ steps }: { steps: { title: string; desc: string; done: boo
               disabled={s.done}
             >
               <span
-                className="flex items-center justify-center shrink-0 mono"
+                className={`flex items-center justify-center shrink-0 mono ${current ? 'pulse-ring' : ''}`}
                 style={{
                   width: 20, height: 20, borderRadius: 999, fontSize: 10.5, marginTop: 1,
                   background: s.done ? 'var(--success)' : current ? 'var(--brand)' : 'var(--surface-3)',
                   color: s.done || current ? '#FFFFFF' : 'var(--text-tertiary)',
+                  transition: 'background .4s ease, color .4s ease',
                 }}
               >
                 {s.done ? (
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className={flashing ? 'count-pop' : undefined} width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3.4 8.4 6.6 11.6 12.6 4.8" />
                   </svg>
                 ) : i + 1}
@@ -58,7 +83,7 @@ function StartGuide({ steps }: { steps: { title: string; desc: string; done: boo
                   style={{
                     fontSize: 13, fontWeight: current ? 500 : 400,
                     color: s.done ? 'var(--text-tertiary)' : 'var(--text-primary)',
-                    textDecoration: s.done ? 'line-through' : 'none',
+                    transition: 'color .4s ease',
                   }}
                 >
                   {s.title}
