@@ -367,6 +367,22 @@ function startProcessing() {
   }, 760);
 }
 
+// 本机没有任何历史任务（冷启动首飞 / 清理过任务数据）时的成果兜底模板
+const FALLBACK_STACKS: Stack[] = [
+  { id: 'S-A', name: '堆体 A', position: '东侧靠门', cargoType: 'bulk', volumeM3: 84.6,
+    volumeConfidence: 'high', surfaceCoverPct: 98,
+    occlusionNote: '四面完整可见，顶面点云密度充足。',
+    layerCount: null, perLayerCount: null, totalCount: null, countConfidence: null },
+  { id: 'S-B', name: '堆体 B', position: '中部', cargoType: 'bulk', volumeM3: 52.3,
+    volumeConfidence: 'medium', surfaceCoverPct: 91,
+    occlusionNote: '北侧紧贴墙面，该侧壁面由地面基准延伸推算，未直接扫描。',
+    layerCount: null, perLayerCount: null, totalCount: null, countConfidence: null },
+  { id: 'S-C', name: '堆体 C', position: '西南角', cargoType: 'bulk', volumeM3: 31.8,
+    volumeConfidence: 'medium', surfaceCoverPct: 88,
+    occlusionNote: '西侧贴墙，该侧由推算得出。',
+    layerCount: null, perLayerCount: null, totalCount: null, countConfidence: null },
+];
+
 async function finishMission() {
   const s = useStore.getState();
   const m = s.mission;
@@ -375,9 +391,9 @@ async function finishMission() {
 
   const path = buildRoutePath(route.waypointCount, route.altitudeM);
   const full = m.coverage >= 100;
-  // 成果堆体：取该航线最近一次同类任务作为模板
-  const template = s.tasks.find(t => t.routeId === route.id) ?? s.tasks[0];
-  const stacks: Stack[] = template.stacks.map(st => full
+  // 成果堆体：取该航线最近一次同类任务作为模板；没有任何历史任务时用内置模板兜底
+  const template = s.tasks.find(t => t.routeId === route.id) ?? s.tasks[0] ?? null;
+  const stacks: Stack[] = (template ? template.stacks : FALLBACK_STACKS).map(st => full
     ? { ...st }
     : {
         ...st,
