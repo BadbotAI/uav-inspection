@@ -3,7 +3,7 @@ import { useStore } from '../store';
 import { Button, CtaRow } from '../components/Button';
 import { IconChevronDown } from '../components/Icons';
 import { ProcessingViz } from '../components/ProcessingViz';
-import { PROC_STAGES, viewResult } from '../sim/flight';
+import { PROC_STAGES, viewResult, retryProcessing, keepRawOnly } from '../sim/flight';
 
 export function Processing() {
   const mission = useStore(s => s.mission);
@@ -117,8 +117,8 @@ export function Processing() {
 
         {failed && (
           <div className="flex gap-2.5 mt-5">
-            <Button variant="secondary">仅保留原始点云</Button>
-            <Button>重新处理</Button>
+            <Button variant="secondary" onClick={keepRawOnly}>仅保留原始点云</Button>
+            <Button onClick={retryProcessing}>重新处理</Button>
           </div>
         )}
       </div>

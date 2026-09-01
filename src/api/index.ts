@@ -4,6 +4,7 @@ import type { CheckResult, DeviceState, Route, Scene, Task } from '../types';
 import { DEVICE } from '../mock/device';
 import { ROUTES, NEW_ROUTE, SCENES } from '../mock/routes';
 import { TASKS } from '../mock/tasks';
+import { shiftDate } from '../mock/shift';
 
 const delay = (ms?: number) =>
   new Promise<void>(r => setTimeout(r, ms ?? 200 + Math.random() * 400));
@@ -18,7 +19,8 @@ let scenes: Scene[] = cold ? [] : SCENES.map(s => ({ ...s }));
 let tasks: Task[] = cold ? [] : TASKS.map(t => ({ ...t, stacks: t.stacks.map(s => ({ ...s })) }));
 let device: DeviceState | null = cold ? null : { ...DEVICE };
 let newRouteDelivered = false;
-let lastSyncAt: string | null = cold ? null : '2026-07-24T10:15:00';
+const INITIAL_SYNC_AT = shiftDate('2026-07-24T10:15:00');
+let lastSyncAt: string | null = cold ? null : INITIAL_SYNC_AT;
 
 export const api = {
   isCold(): boolean { return cold; },
@@ -28,6 +30,24 @@ export const api = {
     cold = true;
     routes = []; scenes = []; tasks = []; device = null;
     newRouteDelivered = false; lastSyncAt = null;
+  },
+
+  // DEMO：退出冷启动态，恢复完整演示数据；同步返回快照，供演示项立即使用
+  exitCold(): { device: DeviceState; scenes: Scene[]; routes: Route[]; lastSyncAt: string; tasks: Task[] } {
+    cold = false;
+    device = { ...DEVICE };
+    scenes = SCENES.map(s => ({ ...s }));
+    routes = ROUTES.map(r => ({ ...r }));
+    tasks = TASKS.map(t => ({ ...t, stacks: t.stacks.map(s => ({ ...s })) }));
+    newRouteDelivered = false;
+    lastSyncAt = INITIAL_SYNC_AT;
+    return {
+      device: { ...device },
+      scenes: scenes.map(s => ({ ...s })),
+      routes: routes.map(r => ({ ...r })),
+      lastSyncAt,
+      tasks: tasks.map(t => ({ ...t, stacks: t.stacks.map(s => ({ ...s })) })),
+    };
   },
 
   // 连接设备：按设备唯一标识绑定并建立局域网连接（冷启动态下首次绑定也走这里）
@@ -94,7 +114,7 @@ export const api = {
       newRouteDelivered = true;
       newCount = 1;
     }
-    lastSyncAt = cold ? new Date().toISOString() : '2026-07-27T10:20:00';
+    lastSyncAt = new Date().toISOString();
     return { routes: routes.map(r => ({ ...r })), scenes: scenes.map(s => ({ ...s })), newCount, lastSyncAt };
   },
 

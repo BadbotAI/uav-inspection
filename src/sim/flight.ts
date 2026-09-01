@@ -408,7 +408,8 @@ async function finishMission() {
   const stamp = `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}_${p(now.getHours())}${p(now.getMinutes())}`;
   const startedIso = m.takeoffIso ?? now.toISOString();
   const task: Task = {
-    id: `T-20260727-${p(taskSeq++)}`,
+    // 编号与共享路径都取真实日期 / 当前连接设备，保证与记录内容可对账
+    id: `T-${stamp.slice(0, 8)}-${p(taskSeq++)}`,
     routeId: route.id, routeName: routeDisplayName(route),
     startedAt: startedIso, landedAt: now.toISOString(),
     durationSec: Math.round(m.elapsedSec),
@@ -425,7 +426,7 @@ async function finishMission() {
     trackCompletePct: full ? 99.4 : 96.0,
     volumeCalcSec: full ? 63 : 31,
     volumeErrPct: full ? 2.8 : 4.9,
-    cloudSharePath: `\\\\UAV-A31C\\scans\\${stamp}\\`,
+    cloudSharePath: `\\\\${s.device?.id ?? 'UAV-A31C'}\\scans\\${stamp}\\`,
     cloudSizeMb: Math.round(742 * Math.max(0.2, m.prog)),
     stacks,
   };
@@ -447,6 +448,40 @@ async function finishMission() {
     mission: { ...st.mission, state: 'DONE', resultTaskId: task.id },
     doneEntry: st.mission.minimized ? task.id : null,
   }));
+}
+
+// ---------- 处理失败分支 ----------
+
+// 重新处理：从第一阶段重跑（演示中重跑即成功）
+export function retryProcessing() {
+  startProcessing();
+}
+
+// 仅保留原始点云：不出体积结果，任务态收尾，原始数据留在无人机端
+export function keepRawOnly() {
+  clearTimers();
+  useStore.setState({ mission: { ...initialMission } });
+  useStore.getState().showToast('原始点云已保留在无人机端共享目录');
+}
+
+// DEMO：直接进入处理失败态（真实链路中由机载端上报）
+export function demoProcessFail(routeId = 'R-03') {
+  const s = useStore.getState();
+  const route = s.routes.find(r => r.id === routeId) ?? s.routes[0];
+  if (!route) return;
+  clearTimers();
+  const now = new Date();
+  useStore.setState({
+    loggedIn: true,
+    mission: {
+      ...initialMission, state: 'PROCESS_FAIL', routeId: route.id,
+      prog: 1, waypointDone: route.waypointCount, coverage: 100,
+      elapsedSec: route.etaMin * 60, procStage: 2,
+      siteAckAtIso: now.toISOString(),
+      takeoffIso: new Date(now.getTime() - route.etaMin * 60000).toISOString(),
+      events: [ev('landed', '降落')],
+    },
+  });
 }
 
 // ---------- 成果入口 ----------

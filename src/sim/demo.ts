@@ -2,13 +2,18 @@
 import { useStore, initialMission } from '../store';
 import { api } from '../api';
 import {
-  demoJumpToFlying, demoJumpToProcessing, triggerObstacle, triggerFault,
+  demoJumpToFlying, demoJumpToProcessing, demoProcessFail, triggerObstacle, triggerFault,
   triggerRcOverride, startPreflight,
 } from './flight';
 
 function ensureLoggedIn() {
   const s = useStore.getState();
   if (!s.loggedIn) useStore.setState({ loggedIn: true, account: '张' });
+  // 冷启动态下点任何演示项：先恢复完整演示数据，保证每个演示都能有始有终
+  if (useStore.getState().routes.length === 0) {
+    const snap = api.exitCold();
+    useStore.setState({ ...snap, dataLoaded: true, selectedRouteId: 'R-03' });
+  }
 }
 
 export interface DemoItem { label: string; run: () => void }
@@ -45,6 +50,10 @@ export const demoItems: DemoItem[] = [
   {
     label: '数据处理',
     run: () => { ensureLoggedIn(); demoJumpToProcessing('R-03'); },
+  },
+  {
+    label: '处理失败',
+    run: () => { ensureLoggedIn(); demoProcessFail('R-03'); },
   },
   {
     label: '体积结果',
