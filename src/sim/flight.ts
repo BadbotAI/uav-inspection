@@ -275,7 +275,7 @@ function tick() {
       s.patchMission({ elapsedSec, speedMs: 0 });
       if (m.hoverReason === 'loc') {
         // 定位丢失：不返航（无法可靠导航），原地降落，任务中断，已飞数据保留
-        s.patchMission({ returnTrigger: 'safety', coverage: Math.round(m.prog * 100), hoverReason: null });
+        s.patchMission({ returnTrigger: 'loc_lost', coverage: Math.round(m.prog * 100), hoverReason: null });
         pushEvent('landed', '定位丢失 · 原地降落');
         land();
       } else {

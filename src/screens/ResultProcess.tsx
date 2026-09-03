@@ -10,7 +10,8 @@ const RETURN_TRIGGER_TEXT = {
   user: '用户手动返航',
   route_complete: '航线走完自动返航',
   auto_timeout: '悬停超时自动返航',
-  safety: '定位丢失 · 原地降落',
+  safety: '低电量 · 安全返航',
+  loc_lost: '定位丢失 · 原地降落',
   rc_override: '遥控器介入，任务中断',
 } as const;
 
