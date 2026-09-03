@@ -68,8 +68,7 @@ export const NEW_ROUTE: Route = shiftRoute({
 
 export const NEW_ROUTE_RECORDED_AT_TEXT = `${shiftDate('2026-07-27')} 14:22`;
 
-// 展示名：区域 + 扫描方式
+// 展示名：仅航线名称（研究员口径：没有"扫描方式"这一属性，不再拼接标签）
 export function routeDisplayName(r: Pick<Route, 'name' | 'scanTags'>): string {
-  const base = r.name || '未命名航线';
-  return r.scanTags.length ? `${base} · ${r.scanTags.join('/')}` : base;
+  return r.name || '未命名航线';
 }

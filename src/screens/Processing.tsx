@@ -116,10 +116,15 @@ export function Processing() {
         )}
 
         {failed && (
-          <div className="flex gap-2.5 mt-5">
-            <Button variant="secondary" onClick={keepRawOnly}>仅保留原始点云</Button>
-            <Button onClick={retryProcessing}>重新处理</Button>
-          </div>
+          <>
+            <div className="flex gap-2.5 mt-5">
+              <Button variant="secondary" onClick={keepRawOnly}>放弃本次结果</Button>
+              <Button onClick={retryProcessing}>重新处理</Button>
+            </div>
+            <div className="text-center mt-2.5" style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>
+              无论是否重新处理，原始点云都已自动保留在无人机端
+            </div>
+          </>
         )}
       </div>
     </div>

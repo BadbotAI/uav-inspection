@@ -7,9 +7,9 @@ import { DEFAULT_BULK_DENSITY } from './constants';
 export type Tab = 'home' | 'routes' | 'results' | 'device' | 'settings';
 export type ResultView = 'process' | 'result';
 
+// 航线编辑能力已取消（航线以无人机端示教录制为准），仅保留 查看详情 / 接收新航线
 export type RouteSub =
   | { view: 'detail'; id: string }
-  | { view: 'edit'; id: string; from: 'receive' | 'list' | 'detail' }
   | { view: 'receive' }
   | null;
 
@@ -192,10 +192,6 @@ export const useStore = create<AppState>((set, get) => ({
     }
 
     if (s.routeSub) {
-      if (s.routeSub.view === 'edit') {
-        window.dispatchEvent(new CustomEvent('routeedit-back'));
-        return;
-      }
       set({ routeSub: null });
       return;
     }

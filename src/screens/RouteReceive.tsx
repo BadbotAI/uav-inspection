@@ -52,7 +52,6 @@ export function RouteReceive() {
                   {scene.name}
                 </span>
               )}
-              {fresh?.scanTags.map(t => <Tag key={t} tone="info">{t}</Tag>)}
               <Tag>{fresh?.waypointCount ?? 18} 航点</Tag>
               <Tag>约 {fresh?.etaMin ?? 5} 分钟</Tag>
             </div>
@@ -74,13 +73,6 @@ export function RouteReceive() {
             </Button>
           </CtaRow>
         </div>
-        <button
-          className="w-full text-center py-3.5"
-          style={{ fontSize: 12.5, color: 'var(--text-link)', cursor: 'pointer' }}
-          onClick={() => fresh && set({ routeSub: { view: 'edit', id: fresh.id, from: 'receive' } })}
-        >
-          编辑航线基础信息
-        </button>
       </div>
     </div>
   );

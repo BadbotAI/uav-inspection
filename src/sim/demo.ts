@@ -3,7 +3,7 @@ import { useStore, initialMission } from '../store';
 import { api } from '../api';
 import {
   demoJumpToFlying, demoJumpToProcessing, demoProcessFail, triggerObstacle, triggerFault,
-  triggerRcOverride, startPreflight,
+  triggerRcOverride, triggerLocLost, startPreflight,
 } from './flight';
 
 function ensureLoggedIn() {
@@ -37,6 +37,15 @@ export const demoItems: DemoItem[] = [
   {
     label: '执行态',
     run: () => { ensureLoggedIn(); demoJumpToFlying('R-03', 0.28); },
+  },
+  {
+    label: '定位丢失',
+    run: () => {
+      ensureLoggedIn();
+      const m = useStore.getState().mission;
+      if (m.state !== 'FLYING') demoJumpToFlying('R-03', 0.62);
+      setTimeout(triggerLocLost, 80);
+    },
   },
   {
     label: '触发停障',

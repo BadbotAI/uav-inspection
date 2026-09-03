@@ -6,7 +6,7 @@ import { buildRoutePath, posAt, waypointRows, type RoutePath } from '../three/ro
 import { profileOf } from '../three/pointcloud';
 import { routeDisplayName } from '../mock/routes';
 import {
-  COUNTDOWN_S, OBSTACLE_TIMEOUT_S, OBSTACLE_CLEAR_MOCK_S, LOC_LOST_TIMEOUT_S,
+  COUNTDOWN_S, OBSTACLE_TIMEOUT_S, OBSTACLE_CLEAR_MOCK_S,
   BATTERY_LOW_PCT, BATTERY_RETURN_PCT, fmtClock,
 } from '../constants';
 
@@ -273,7 +273,14 @@ function tick() {
     }
     if (hoverCountdown <= 0) {
       s.patchMission({ elapsedSec, speedMs: 0 });
-      startReturn(m.hoverReason === 'obstacle' ? 'auto_timeout' : 'safety');
+      if (m.hoverReason === 'loc') {
+        // 定位丢失：不返航（无法可靠导航），原地降落，任务中断，已飞数据保留
+        s.patchMission({ returnTrigger: 'safety', coverage: Math.round(m.prog * 100), hoverReason: null });
+        pushEvent('landed', '定位丢失 · 原地降落');
+        land();
+      } else {
+        startReturn('auto_timeout');
+      }
     } else {
       s.patchMission({ elapsedSec, speedMs: 0, hoverCountdown, pitchDeg: 0, rollDeg: 0 });
     }
@@ -311,13 +318,14 @@ export function triggerObstacle() {
   pushEvent('hover_obstacle', '停障 · 悬停');
 }
 
+// 定位丢失：短暂悬停提示后原地降落（研究员口径：lost 直接原地降落，不做悬停等待恢复）
 export function triggerLocLost() {
   const m = useStore.getState().mission;
   if (m.state !== 'FLYING') return;
   useStore.getState().patchMission({
-    state: 'HOVERING', hoverReason: 'loc', hoverCountdown: LOC_LOST_TIMEOUT_S, speedMs: 0,
+    state: 'HOVERING', hoverReason: 'loc', hoverCountdown: 3, speedMs: 0, shooting: false,
   });
-  pushEvent('hover_loc', '定位质量不足 · 悬停');
+  pushEvent('hover_loc', '定位丢失 · 准备原地降落');
 }
 
 export function startReturn(trigger: Task['returnTrigger']) {
@@ -349,7 +357,8 @@ function land() {
 
 // ---------- 处理六阶段 ----------
 
-export const PROC_STAGES = ['点云汇总与去噪', '地面分割', '点云精配准', '堆体分割', '体积测算', '结果打包'];
+// 处理阶段（研究员口径：不细分算法内部步骤，只给整体环节与耗时）
+export const PROC_STAGES = ['数据回传', '点云处理', '结果计算'];
 
 function startProcessing() {
   useStore.getState().patchMission({ state: 'PROCESSING', procStage: 0 });
@@ -364,7 +373,7 @@ function startProcessing() {
     } else {
       useStore.getState().patchMission({ procStage: next });
     }
-  }, 760);
+  }, 1500);
 }
 
 // 本机没有任何历史任务（冷启动首飞 / 清理过任务数据）时的成果兜底模板
@@ -457,11 +466,11 @@ export function retryProcessing() {
   startProcessing();
 }
 
-// 仅保留原始点云：不出体积结果，任务态收尾，原始数据留在无人机端
+// 放弃本次结果：不出体积结果，任务态收尾（原始点云无论成败都会保留在无人机端）
 export function keepRawOnly() {
   clearTimers();
   useStore.setState({ mission: { ...initialMission } });
-  useStore.getState().showToast('原始点云已保留在无人机端共享目录');
+  useStore.getState().showToast('已放弃本次结果，原始点云保留在无人机端');
 }
 
 // DEMO：直接进入处理失败态（真实链路中由机载端上报）
@@ -476,7 +485,7 @@ export function demoProcessFail(routeId = 'R-03') {
     mission: {
       ...initialMission, state: 'PROCESS_FAIL', routeId: route.id,
       prog: 1, waypointDone: route.waypointCount, coverage: 100,
-      elapsedSec: route.etaMin * 60, procStage: 2,
+      elapsedSec: route.etaMin * 60, procStage: 1,
       siteAckAtIso: now.toISOString(),
       takeoffIso: new Date(now.getTime() - route.etaMin * 60000).toISOString(),
       events: [ev('landed', '降落')],

@@ -8,7 +8,7 @@ import { Tag } from '../components/Pill';
 import { Button, CtaRow } from '../components/Button';
 import { TeleGrid } from '../components/TeleGrid';
 import { FloatBack } from '../components/SubHeader';
-import { IconEdit, IconPlus, IconNote, IconPin } from '../components/Icons';
+import { IconNote, IconPin } from '../components/Icons';
 import { buildRoutePath, waypointRows } from '../three/route';
 import { startPreflight } from '../sim/flight';
 import { fmtRelDay } from '../constants';
@@ -29,8 +29,6 @@ export function RouteDetail({ routeId }: { routeId: string }) {
   }, [route?.waypointCount, route?.altitudeM]);
 
   if (!route) return null;
-
-  const goEdit = () => set({ routeSub: { view: 'edit', id: route.id, from: 'detail' } });
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative">
@@ -57,7 +55,6 @@ export function RouteDetail({ routeId }: { routeId: string }) {
               <span className="truncate" style={{ fontSize: 18, fontWeight: 600 }}>
                 {route.name || '未命名航线'}
               </span>
-              {route.scanTags.map(t => <Tag key={t} tone="info">{t}</Tag>)}
             </div>
             {/* 元信息标签化：地址胶囊与其他卡片对齐，编号收进标签 */}
             <div className="flex flex-wrap items-center mt-2" style={{ gap: 6 }}>
@@ -79,17 +76,6 @@ export function RouteDetail({ routeId }: { routeId: string }) {
               </span>
             </div>
           </div>
-          <button
-            className="flex items-center gap-1 shrink-0"
-            style={{
-              fontSize: 12, padding: '6px 11px', borderRadius: 999,
-              color: 'var(--text-secondary)', border: '1px solid var(--border-default)',
-              background: 'var(--fill-quiet)', cursor: 'pointer', marginTop: 2,
-            }}
-            onClick={goEdit}
-          >
-            <IconEdit size={12} /> 编辑
-          </button>
         </div>
 
         <div className="mt-3.5">
@@ -102,15 +88,6 @@ export function RouteDetail({ routeId }: { routeId: string }) {
 
         <div className="flex items-center justify-between mt-5 mb-2">
           <span className="dlabel" style={{ fontSize: 11 }}>示教备注</span>
-          {route.note && (
-            <button
-              className="flex items-center gap-1"
-              style={{ fontSize: 12, color: 'var(--text-link)', cursor: 'pointer' }}
-              onClick={goEdit}
-            >
-              <IconEdit size={12} /> 编辑
-            </button>
-          )}
         </div>
         {route.note ? (
           <Card>
@@ -122,17 +99,16 @@ export function RouteDetail({ routeId }: { routeId: string }) {
             </div>
           </Card>
         ) : (
-          <button
-            className="w-full flex items-center justify-center gap-1.5"
+          <div
+            className="w-full flex items-center justify-center"
             style={{
-              height: 52, borderRadius: 12, cursor: 'pointer',
-              border: '1px dashed var(--border-strong)', background: 'transparent',
-              color: 'var(--text-link)', fontSize: 13,
+              height: 44, borderRadius: 12,
+              border: '1px dashed var(--border-strong)',
+              color: 'var(--text-placeholder)', fontSize: 12.5,
             }}
-            onClick={goEdit}
           >
-            <IconPlus size={13} /> 添加示教备注
-          </button>
+            示教时未填写备注
+          </div>
         )}
 
         {/* 航点列表：示教录制的逐点数据 */}

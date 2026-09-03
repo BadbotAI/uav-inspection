@@ -169,20 +169,18 @@ export const api = {
   },
 };
 
-// 起飞前自检：由无人机执行并回传结果（含场景匹配校验）
-export function buildPreflightChecks(route: Route, dev: DeviceState, sceneName: string): CheckResult[] {
+// 起飞前自检：由无人机执行并回传结果
+// 场景匹配不做机载判定（飞机无法自知所在场景），改为起飞前人工确认
+export function buildPreflightChecks(route: Route, dev: DeviceState, _sceneName: string): CheckResult[] {
   const needBattery = Math.round(route.etaMin * 4.8);
   const needGb = 0.8;
   return [
-    { key: 'scene', title: '场景匹配',
-      passed: true,
-      detail: `检测到所在场景 ${sceneName} · 与航线一致` },
     { key: 'battery', title: '电量',
       passed: dev.batteryPct >= needBattery * 1.5,
       detail: `${dev.batteryPct}% · 本航线预计需 ${needBattery}%` },
     { key: 'loc', title: '定位就绪',
       passed: dev.locQuality === 'good',
-      detail: `融合定位已收敛 · P95 ${dev.locP95Cm.toFixed(1)}cm` },
+      detail: '融合定位已收敛 · 状态良好' },
     { key: 'storage', title: '机载存储',
       passed: dev.storageFreeGb >= needGb * 1.3,
       detail: `剩余 ${dev.storageFreeGb.toFixed(1)}GB · 本次预计 ${needGb.toFixed(1)}GB` },

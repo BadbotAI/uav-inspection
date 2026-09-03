@@ -6,7 +6,7 @@ import { Card } from '../components/Card';
 import { Pill, Tag } from '../components/Pill';
 import { Skeleton, EmptyState } from '../components/Feedback';
 import { BottomSheet } from '../components/BottomSheet';
-import { IconSync, IconEdit, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconArrowDown, IconChevronDown, IconPin, IconRoute } from '../components/Icons';
+import { IconSync, IconTrash, IconMore, IconSearch, IconChevronRight, IconChevronLeft, IconArrowDown, IconChevronDown, IconPin, IconRoute } from '../components/Icons';
 import { Viewport } from '../components/Viewport';
 import { RouteDelete } from './RouteDelete';
 import { fmtRelDay, daysAgo } from '../constants';
@@ -51,8 +51,7 @@ export function RouteList() {
       if (!q) return true;
       return (r.name || '未命名航线').includes(q)
         || r.id.toLowerCase().includes(q.toLowerCase())
-        || r.note.includes(q)
-        || r.scanTags.some(t => t.includes(q));
+        || r.note.includes(q);
     })
     .sort(cmp);
 
@@ -109,7 +108,6 @@ export function RouteList() {
         {showScene && (
           <Tag tone="info">{scenes.find(sc => sc.id === r.sceneId)?.name ?? ''}</Tag>
         )}
-        {r.scanTags.map(tg => <Tag key={tg} tone="info">{tg}</Tag>)}
         <Tag>{r.waypointCount} 航点</Tag>
         <Tag>约 {r.etaMin} 分钟</Tag>
         <Tag>离堆 {r.minClearanceM.toFixed(1)}m</Tag>
@@ -298,20 +296,8 @@ export function RouteList() {
         <div style={{ fontSize: 14, fontWeight: 500 }} className="mb-3">
           {actionRoute?.name || '未命名航线'}
         </div>
+        {/* 航线编辑能力已取消：航线内容以无人机端示教录制为准，App 仅查看与删除 */}
         <div className="flex flex-col gap-2">
-          <button
-            className="flex items-center gap-2.5 text-left"
-            style={{
-              fontSize: 13.5, padding: '11px 13px', borderRadius: 10,
-              background: 'var(--fill-quiet)', color: 'var(--text-primary)', cursor: 'pointer',
-            }}
-            onClick={() => {
-              if (actionRoute) set({ routeSub: { view: 'edit', id: actionRoute.id, from: 'list' } });
-              setActionRoute(null);
-            }}
-          >
-            <IconEdit size={14} /> 编辑航线基础信息
-          </button>
           <button
             className="flex items-center gap-2.5 text-left"
             style={{

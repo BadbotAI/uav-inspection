@@ -67,7 +67,7 @@ export function Device() {
   const statusText = !device?.connected ? '未连接'
     : mission.state !== 'IDLE' ? '飞行中'
     : !device.sensorsOk ? '异常'
-    : device.charging ? '充电中' : '空闲';
+    : '空闲';
 
   const scan = () => {
     if (scanning) return;
@@ -183,7 +183,7 @@ export function Device() {
                   {/* 状态标签统一位于设备编号右侧（与其他设备卡一致） */}
                   <div className="flex items-center gap-1.5">
                     <span className="truncate" style={{ fontSize: 14, fontWeight: 500 }}>{device?.id ?? 'UAV-A31C'}</span>
-                    <Pill tone={statusText === '异常' ? 'lo' : statusText === '飞行中' || statusText === '充电中' ? 'info' : 'neutral'}>
+                    <Pill tone={statusText === '异常' ? 'lo' : statusText === '飞行中' ? 'info' : 'neutral'}>
                       {statusText === '未连接' ? '离线' : statusText}
                     </Pill>
                   </div>
@@ -286,7 +286,7 @@ export function Device() {
         <div className="mt-3 leading-[1.6]" style={{ fontSize: 11.5, color: 'var(--text-tertiary)' }}>
           {(device ? 1 : 0) + others.length === 0
             ? '发现设备后，系统将持续接入同一局域网内各台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台。'
-            : `系统持续接入同一局域网内 ${(device ? 1 : 0) + others.length} 台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台，连接其他设备时当前设备将断开。`}
+            : `系统持续接入同一局域网内 ${(device ? 1 : 0) + others.length} 台设备的遥测数据，依据设备唯一标识识别绑定；本机同时仅连接并控制一台，连接其他设备时当前设备将断开。各设备的作业场景由工作人员指定，用于加载对应场景地图完成定位。`}
         </div>
 
         {/* 运行日志：设备侧记录，随设备页 */}

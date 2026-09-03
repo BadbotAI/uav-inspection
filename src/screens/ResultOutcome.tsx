@@ -2,9 +2,7 @@
 // 报告链路：生成报告（加载）→ 应用内预览 → 可选保存到手机
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store';
-import { Pill } from '../components/Pill';
 import { IconDoc, IconCopy, IconChevronRight } from '../components/Icons';
-import { CONF_TEXT, CONF_TONE } from './ResultShared';
 import { syncCodeOf } from '../sync';
 
 // 网页端数据中心地址：手机端复制同步码后，在网页端接入即可归档、检索、下载
@@ -201,7 +199,6 @@ export function ResultOutcome({
                 </div>
               </div>
               <div className="shrink-0 flex items-center gap-1.5">
-                <Pill tone={CONF_TONE[s.volumeConfidence]}>{CONF_TEXT[s.volumeConfidence]}</Pill>
                 {onPick && (
                   <span style={{ color: 'var(--text-placeholder)', display: 'inline-flex' }}>
                     <IconChevronRight size={11} />
@@ -238,10 +235,7 @@ export function ResultOutcome({
             {task.coveragePct < 100 ? '部分覆盖航线区域' : '完整覆盖航线区域'}
           </div>
           <div className="mono mt-1" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-            完成航点 {task.waypointDone}/{task.waypointTotal} · 定位精度 ±{task.locP95Cm.toFixed(1)}cm
-          </div>
-          <div className="mono mt-0.5" style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-            体积误差 ±{task.volumeErrPct.toFixed(1)}% · 测算耗时 {task.volumeCalcSec}s
+            完成航点 {task.waypointDone}/{task.waypointTotal} · 测算耗时 {task.volumeCalcSec}s
           </div>
         </div>
       </div>
@@ -393,7 +387,6 @@ export function ResultOutcome({
                 ['任务状态', task.status === 'success' ? '完成' : task.status === 'aborted' ? '中断' : '失败'],
                 ['覆盖度', `${task.coveragePct}%`],
                 ['完成航点', `${task.waypointDone}/${task.waypointTotal}`],
-                ['体积误差', `±${task.volumeErrPct.toFixed(1)}%`],
                 ['处理状态', '机载处理完成'],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between" style={{ padding: '3px 0' }}>

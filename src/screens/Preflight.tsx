@@ -35,8 +35,10 @@ function CheckIcon({ state }: { state: 'pass' | 'fail' | 'pending' | 'warn' }) {
 export function Preflight() {
   const mission = useStore(s => s.mission);
   const routes = useStore(s => s.routes);
+  const scenes = useStore(s => s.scenes);
   const [cancelOpen, setCancelOpen] = useState(false);
   const route = routes.find(r => r.id === mission.routeId);
+  const sceneName = scenes.find(sc => sc.id === route?.sceneId)?.name ?? '';
 
   useEffect(() => {
     const onBack = () => setCancelOpen(true);
@@ -142,6 +144,19 @@ export function Preflight() {
             );
           })}
         </div>
+
+        {/* 场景匹配改为人工确认：无人机不判断所在场景 */}
+        {allShown && allPassed && (
+          <div
+            className="mt-3 leading-[1.65]"
+            style={{
+              fontSize: 11.5, color: 'var(--brand-subtle-text)', padding: '9px 12px',
+              borderRadius: 8, background: 'var(--brand-subtle-bg)',
+            }}
+          >
+            请人工确认无人机当前位于「{sceneName}」，与航线所属场景一致；点击起飞即视为已确认。
+          </div>
+        )}
 
         <div className="mt-4">
           <CtaRow width={190}>

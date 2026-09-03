@@ -116,7 +116,8 @@ export function Home() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerQuery, setPickerQuery] = useState('');
   const [pickerScene, setPickerScene] = useState<string | null>(null);
-  const [pickerStep, setPickerStep] = useState<'routes' | 'region'>('routes');
+  // 任务发起顺序（研究员口径）：先选场景，再选航线 —— 弹层默认从场景步骤进入
+  const [pickerStep, setPickerStep] = useState<'routes' | 'region'>('region');
   const [mapOpen, setMapOpen] = useState(false);
   const [mapRouteId, setMapRouteId] = useState<string | null>(null);
   const [mapSceneId, setMapSceneId] = useState<string | null>(null);
@@ -132,7 +133,7 @@ export function Home() {
     .filter(r => {
       const q = pickerQuery.trim();
       if (!q) return true;
-      return (r.name || '未命名航线').includes(q) || r.scanTags.some(t => t.includes(q));
+      return (r.name || '未命名航线').includes(q);
     });
   // 「上次巡检」= 最新一条巡检记录（新任务完成后即时置顶更新）
   const lastTask = tasks[0] ?? null;
@@ -155,9 +156,8 @@ export function Home() {
       case 'HOVERING': return { text: '原地等待', tone: 'mid', mode: 'active' };
       case 'RETURNING': case 'LANDED': return { text: '返航中', tone: 'mid', mode: 'active' };
       default:
-        return device.charging
-          ? { text: '充电中', tone: 'info', mode: 'idle' }
-          : { text: '空闲', tone: 'neutral', mode: 'idle' };
+        // 充电状态无法经网络获取（电池可能取下充电），不做充电中展示
+        return { text: '空闲', tone: 'neutral', mode: 'idle' };
     }
   })();
 
@@ -390,7 +390,7 @@ export function Home() {
       </div>
 
       {/* 航线选择弹层：两步选择（区域 → 航线），区域选择为面板内切页 */}
-      <BottomSheet open={pickerOpen} onMask={() => { setPickerOpen(false); setPickerStep('routes'); }}>
+      <BottomSheet open={pickerOpen} onMask={() => { setPickerOpen(false); setPickerStep('region'); }}>
         {pickerStep === 'region' ? (
           <>
             <div className="flex items-center gap-1" style={{ height: 32, marginBottom: 10 }}>
@@ -521,7 +521,7 @@ export function Home() {
                         border: `1px solid ${active ? 'var(--brand-border)' : 'var(--border-default)'}`,
                         boxShadow: 'var(--shadow-card)',
                       }}
-                      onClick={() => { set({ selectedRouteId: r.id }); setPickerOpen(false); }}
+                      onClick={() => { set({ selectedRouteId: r.id }); setPickerOpen(false); setPickerStep('region'); }}
                     >
                       {/* 对齐航线页卡片：编号小字 + 名称行 + 标签行（不含创建/成功率/上次巡检） */}
                       <div className="mono" style={{ fontSize: 9.5, letterSpacing: '.06em', color: 'var(--brand-text)', paddingLeft: 23 }}>
@@ -542,7 +542,6 @@ export function Home() {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-2" style={{ paddingLeft: 23 }}>
-                        {r.scanTags.map(tg => <Tag key={tg} tone="info">{tg}</Tag>)}
                         <Tag>{r.waypointCount} 航点</Tag>
                         <Tag>约 {r.etaMin} 分钟</Tag>
                         <Tag>离堆 {r.minClearanceM.toFixed(1)}m</Tag>

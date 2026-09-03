@@ -15,7 +15,6 @@ import { Home } from './screens/Home';
 import { RouteList } from './screens/RouteList';
 import { RouteDetail } from './screens/RouteDetail';
 import { RouteReceive } from './screens/RouteReceive';
-import { RouteEdit } from './screens/RouteEdit';
 import { Preflight } from './screens/Preflight';
 import { Countdown } from './screens/Countdown';
 import { Execute } from './screens/Execute';
@@ -39,8 +38,7 @@ function TabContent() {
   if (tab === 'routes') {
     if (!routeSub) return <RouteList />;
     if (routeSub.view === 'detail') return <RouteDetail routeId={routeSub.id} />;
-    if (routeSub.view === 'receive') return <RouteReceive />;
-    return <RouteEdit routeId={routeSub.id} />;
+    return <RouteReceive />;
   }
 
   if (tab === 'results') {

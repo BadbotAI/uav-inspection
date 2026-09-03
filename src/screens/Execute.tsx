@@ -402,7 +402,7 @@ export function Execute() {
       {/* X-03 停障处置弹层：环形倒计时 + 克制的信息层次 */}
       {obSheet && (() => {
         const isObstacle = mission.hoverReason === 'obstacle';
-        const total = isObstacle ? 120 : 60;
+        const total = isObstacle ? 120 : 3;
         const remain = Math.max(0, Math.ceil(mission.hoverCountdown));
         const R = 15, C = 2 * Math.PI * R;
         return (
@@ -449,20 +449,20 @@ export function Execute() {
                 <div className="flex-1 min-w-0">
                   <div style={{ fontSize: 15.5, fontWeight: 600 }}>
                     {mission.obstacleCleared ? '障碍物已离开'
-                      : isObstacle ? '检测到障碍物，已悬停' : '定位质量不足，已悬停'}
+                      : isObstacle ? '检测到障碍物，已悬停' : '定位丢失，正在原地降落'}
                   </div>
                   <div className="leading-[1.65] mt-1" style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
                     {mission.obstacleCleared
                       ? '前方航路恢复通畅，正在继续飞行。'
                       : isObstacle
                         ? <>机头前方 <span className="mono">2.1m</span>。障碍物离开后自动继续飞行。</>
-                        : '定位不可靠时继续飞行不安全。若定位恢复将自动继续。'}
+                        : '定位不可靠时继续飞行或返航都不安全，无人机将在当前位置降落。已飞数据会正常处理，请前往无人机所在位置查看。'}
                   </div>
                 </div>
               </div>
 
-              {/* 底部：倒计时说明 + 紧凑主动作（解除过渡时收起） */}
-              {!mission.obstacleCleared && (
+              {/* 底部：倒计时说明 + 紧凑主动作（仅停障；定位丢失自动降落，无可选动作） */}
+              {!mission.obstacleCleared && isObstacle && (
                 <div className="flex items-center justify-between mt-5">
                   <span className="mono" style={{ fontSize: 11.5, color: 'var(--text-tertiary)' }}>
                     <span style={{ color: 'var(--danger)' }}>{remain}s</span> 后自动返航
