@@ -337,7 +337,6 @@ export function Home() {
                     <div className="mono flex gap-3 mt-1.5" style={{ fontSize: 11, color: 'var(--brand-subtle-text)' }}>
                       <span>{route.waypointCount} 航点</span>
                       <span>约 {route.etaMin} 分钟</span>
-                      <span>离堆 {route.minClearanceM.toFixed(1)}m</span>
                     </div>
                   </>
                 ) : (
@@ -544,7 +543,6 @@ export function Home() {
                       <div className="flex flex-wrap gap-1.5 mt-2" style={{ paddingLeft: 23 }}>
                         <Tag>{r.waypointCount} 航点</Tag>
                         <Tag>约 {r.etaMin} 分钟</Tag>
-                        <Tag>离堆 {r.minClearanceM.toFixed(1)}m</Tag>
                       </div>
                     </button>
                   );
