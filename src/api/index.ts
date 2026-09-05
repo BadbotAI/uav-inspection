@@ -123,16 +123,7 @@ export const api = {
     return { routes: routes.map(r => ({ ...r })), lastSyncAt };
   },
 
-  async updateRoute(id: string, patch: Pick<Route, 'name' | 'note' | 'scanTags' | 'sceneId'>): Promise<Route> {
-    await delay();
-    const r = routes.find(x => x.id === id);
-    if (!r) throw new Error('E-R404 航线不存在');
-    r.name = patch.name;
-    r.sceneId = patch.sceneId;
-    r.note = patch.note;
-    r.scanTags = patch.scanTags;
-    return { ...r };
-  },
+  // 航线编辑能力已取消：航线内容以无人机端示教录制为准，App 不提供 updateRoute
 
   async deleteRoute(id: string): Promise<void> {
     await delay();

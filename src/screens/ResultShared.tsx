@@ -1,4 +1,4 @@
-// 成果页共用：页签 + 部分覆盖黄条 + 置信度映射
+// 成果页共用：页签 + 部分覆盖黄条
 // 三维视图常驻在页签之上，不参与切换
 import { useStore, type ResultView } from '../store';
 import { fmtRelDay, fmtDateShort, fmtHM } from '../constants';
@@ -66,6 +66,3 @@ export function PartialBar({ task }: { task: Task; forVolume?: boolean }) {
     </div>
   );
 }
-
-export const CONF_TEXT = { high: '高', medium: '中', low: '低' } as const;
-export const CONF_TONE = { high: 'hi', medium: 'mid', low: 'lo' } as const;

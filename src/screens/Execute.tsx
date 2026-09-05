@@ -83,6 +83,7 @@ export function Execute() {
   };
 
   const isReturning = mission.state === 'RETURNING' || mission.state === 'LANDED';
+  const isLanded = mission.state === 'LANDED';
   const isHover = mission.state === 'HOVERING';
   const obstacle = isHover && (mission.hoverReason === 'obstacle' || mission.hoverReason === 'loc');
 
@@ -93,7 +94,8 @@ export function Execute() {
   const total = route.waypointCount;
   const pct = Math.round(mission.prog * 100);
   const lifting = mission.state === 'FLYING' && mission.liftT < 1;
-  const stateText = isReturning ? '返航中' : isHover ? '悬停中' : lifting ? '起飞中' : '执行中';
+  // 已降落单独表述：定位丢失原地降落不经过返航，不能显示"返航中"
+  const stateText = isLanded ? '已降落' : isReturning ? '返航中' : isHover ? '悬停中' : lifting ? '起飞中' : '执行中';
   const stateColor = isHover ? 'var(--warning)' : isReturning ? 'var(--text-secondary)' : 'var(--brand)';
 
   return (
@@ -258,7 +260,7 @@ export function Execute() {
           <div className="mt-2.5 rounded-full overflow-hidden" style={{ height: 4, background: 'var(--surface-3)' }}>
             <div className="h-full bar-fill rounded-full" style={{ width: `${pct}%`, background: 'var(--brand)' }} />
           </div>
-          {isReturning && (
+          {mission.state === 'RETURNING' && (
             <div className="mono mt-1.5" style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>
               沿原航线返航 · 预计 {Math.max(0, Math.ceil(mission.returnEtaS))} 秒到达起降点
             </div>
